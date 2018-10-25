@@ -1,0 +1,49 @@
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+#saved-box {
+    width: 100%;
+    display: flex;
+}
+#url-box {
+    width: 100%;
+    display: flex;
+}
+#action-box {
+    width: 100%;
+    display: flex;
+}
+#content-box {
+    width: 100%;
+    display: flex;
+}
+#urls-box {
+    flex: auto;
+}
+#url {
+    flex: auto;
+}
+#content-box {
+    flex: auto;
+}
+#content {
+    width: 100%;
+    min-height: 400px;
+    resize: none;
+    flex: auto;
+}
+label {
+    min-width: 4em;
+}
+input[type="button"] {
+    min-width: 8em;
+}
