@@ -5,6 +5,7 @@ all:
 	    manifest.json \
 	    ditm-dt.html \
 	    icon.png \
+	    icon-dark.png \
 	    ditm-dt.js \
 	    ditm-panel.html \
 	    ditm-panel.css \
