@@ -235,6 +235,8 @@ browser.runtime.onMessage.addListener(message => {
       if (initialList) {
         initialList = false;
         status("Loaded saved list.");
+
+        gather();
       }
       files = message.files;
       files_resolve(files);
