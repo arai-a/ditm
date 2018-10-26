@@ -111,55 +111,46 @@ async function select_used() {
   }
 }
 async function gather() {
-  status("Gathering URLs used in page...");
   const [urls, error] = await browser.devtools.inspectedWindow.eval(`
 (function () {
-  const urls = [];
+  const urls = new Set();
   function gatherFromScript(script) {
     const src = script.src;
     if (src) {
-      urls.push(src)
+      urls.add(src)
     }
   }
   function gatherFromCSSLink(link) {
     const href = link.href;
     const rel = link.rel;
     if (rel === "stylesheet" && href) {
-      urls.push(href)
+      urls.add(href)
     }
   }
   function gatherFromFrame(frame) {
     const src = frame.src;
     if (src) {
-      urls.push(src)
+      urls.add(src)
     }
     try {
-      gatherFromDocument(frame.contentDocument);
+      const href = frame.contentDocument.location.href;
+      if (!urls.has(href)) {
+        urls.add(href);
+        gatherFromDocument(frame.contentDocument);
+      }
     } catch (e) {
     }
   }
   function gatherFromDocument(doc) {
-    const scripts = document.getElementsByTagName("script");
-    for (let i = 0; i < scripts.length; i++) {
-      gatherFromScript(scripts[i]);
-    }
-    const links = document.getElementsByTagName("link");
-    for (let i = 0; i < links.length; i++) {
-      gatherFromCSSLink(links[i]);
-    }
-    const frames = document.getElementsByTagName("frame");
-    for (let i = 0; i < frames.length; i++) {
-      gatherFromFrame(frames[i]);
-    }
-    const iframes = document.getElementsByTagName("iframe");
-    for (let i = 0; i < iframes.length; i++) {
-      gatherFromFrame(iframes[i]);
-    }
+    document.querySelectorAll("script").forEach(gatherFromScript);
+    document.querySelectorAll("link").forEach(gatherFromCSSLink);
+    document.querySelectorAll("frame").forEach(gatherFromFrame);
+    document.querySelectorAll("iframe").forEach(gatherFromFrame);
   }
-  urls.push(document.location.href);
+  urls.add(document.location.href);
   gatherFromDocument(document);
 
-  return urls;
+  return [...urls];
 })();
 `);
   if (error) {
@@ -175,7 +166,6 @@ async function gather() {
     return;
   }
 
-  status("Gathered URLs used in page.");
   fillUsedList(urls);
 }
 
@@ -216,6 +206,10 @@ async function fillUsedList(urls) {
   initList(used_urls);
 
   for (const url of urls.sort()) {
+    if (url.startsWith("about:")) {
+      continue;
+    }
+
     const option = document.createElement("option");
     option.value = url;
     option.textContent = url;
@@ -234,7 +228,6 @@ browser.runtime.onMessage.addListener(message => {
     case "list": {
       if (initialList) {
         initialList = false;
-        status("Loaded saved list.");
 
         gather();
       }
@@ -246,9 +239,12 @@ browser.runtime.onMessage.addListener(message => {
   }
 });
 
+browser.devtools.network.onNavigated.addListener(url => {
+  gather();
+});
+
 fillUsedList([]);
 
-status("Loading saved list..");
 browser.runtime.sendMessage({
   topic: "list",
 });
