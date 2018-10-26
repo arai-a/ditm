@@ -20,22 +20,47 @@ url_field.addEventListener("keypress", async event => {
   }
 });
 
+const status_field = document.getElementById("status");
+
+const STATUS_TIMEOUT = 10 * 1000;
+let statusTimer = null;
+function status(text) {
+  if (statusTimer) {
+    clearTimeout(statusTimer);
+    statusTimer = null;
+  }
+  status_field.textContent = text;
+  setTimeout(() => {
+    status_field.textContent = "";
+  }, STATUS_TIMEOUT);
+}
+
 document.getElementById("save").addEventListener("click", save);
+
 document.getElementById("load").addEventListener("click", load);
-document.getElementById("remove").addEventListener("click", remove);
+
+const remove_button = document.getElementById("remove");
+remove_button.addEventListener("click", remove);
+remove_button.disabled = true;
+
 document.getElementById("gather").addEventListener("click", gather);
+
 const stored_urls = document.getElementById("stored-urls");
 stored_urls.addEventListener("change", select_stored);
+
 const used_urls = document.getElementById("used-urls");
 used_urls.addEventListener("change", select_used);
 
 async function load() {
+  const url = url_field.value;
+  status(`Loading ${url} ...`);
   browser.runtime.sendMessage({
     topic: "load",
-    url: url_field.value,
+    url,
   });
 }
 async function save() {
+  status(`Saved`);
   browser.runtime.sendMessage({
     topic: "save",
     url: url_field.value,
@@ -47,10 +72,12 @@ async function remove() {
   url_field.value = "";
   content_field.value = "";
   needsContent = true;
+  status(`Removed`);
   browser.runtime.sendMessage({
     topic: "remove",
     url,
   });
+  remove_button.disabled = true;
 }
 async function select_stored() {
   try {
@@ -64,6 +91,7 @@ async function select_stored() {
     url_field.value = url;
     const file = files[stored_urls.value];
     content_field.value = file;
+    remove_button.disabled = false;
   } catch (e) {
     console.log(e.toString());
   }
@@ -75,6 +103,7 @@ async function select_used() {
       return;
     }
     stored_urls.value = "---";
+    remove_button.disabled = true;
     url_field.value = url;
     await load();
   } catch (e) {
@@ -82,6 +111,7 @@ async function select_used() {
   }
 }
 async function gather() {
+  status("Gathering URLs used in page...");
   const [urls, error] = await browser.devtools.inspectedWindow.eval(`
 (function () {
   const urls = [];
@@ -134,17 +164,18 @@ async function gather() {
 `);
   if (error) {
     if ("isException" in error && error.isException) {
-      console.log("Exception: " + error.value);
+      status("Exception: " + error.value);
     }
     else if ("isError" in error && error.isError) {
-      console.log("Error: " + error.code);
+      status("Error: " + error.code);
     }
     else {
-      console.log("Unknown error: " + error);
+      status("Unknown error: " + error);
     }
     return;
   }
 
+  status("Gathered URLs used in page.");
   fillUsedList(urls);
 }
 
@@ -170,9 +201,13 @@ async function fillStoredList() {
 
     if (needsContent) {
       needsContent = false;
-      option.selected = true;
+      stored_urls.value = url;
+      remove_button.disabled = false;
       url_field.value = url;
       content_field.value = files[url];
+    }
+    if (url_field.value === url) {
+      stored_urls.value = url;
     }
   }
 }
@@ -188,13 +223,19 @@ async function fillUsedList(urls) {
   }
 }
 
+let initialList = true;
 browser.runtime.onMessage.addListener(message => {
   switch (message.topic) {
     case "load": {
+      status("Loaded content.");
       content_field.value = message.content;
       break;
     }
     case "list": {
+      if (initialList) {
+        initialList = false;
+        status("Loaded saved list.");
+      }
       files = message.files;
       files_resolve(files);
       fillStoredList();
@@ -202,6 +243,10 @@ browser.runtime.onMessage.addListener(message => {
     }
   }
 });
+
+fillUsedList([]);
+
+status("Loading saved list..");
 browser.runtime.sendMessage({
   topic: "list",
 });
