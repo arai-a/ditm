@@ -63,9 +63,14 @@ async function run() {
 
     switch (message.topic) {
       case "load": {
-        const response = await fetch(message.url);
-        const content = await response.text();
-        browser.runtime.sendMessage({ topic: "load", content });
+        const url = message.url;
+        try {
+          const response = await fetch(url);
+          const content = await response.text();
+          browser.runtime.sendMessage({ topic: "load", content });
+        } catch (e) {
+          browser.runtime.sendMessage({ topic: "load:fail", url, error: e.toString() });
+        }
         break;
       }
       case "save": {

@@ -110,6 +110,17 @@ async function select_used() {
     console.log(e.toString());
   }
 }
+function handleEvalError(error) {
+  if ("isException" in error && error.isException) {
+    status("Exception: " + error.value);
+  }
+  else if ("isError" in error && error.isError) {
+    status("Error: " + error.code);
+  }
+  else {
+    status("Unknown error: " + error);
+  }
+}
 async function gather() {
   const [urls, error] = await browser.devtools.inspectedWindow.eval(`
 (function () {
@@ -154,15 +165,7 @@ async function gather() {
 })();
 `);
   if (error) {
-    if ("isException" in error && error.isException) {
-      status("Exception: " + error.value);
-    }
-    else if ("isError" in error && error.isError) {
-      status("Error: " + error.code);
-    }
-    else {
-      status("Unknown error: " + error);
-    }
+    handleEvalError(error);
     return;
   }
 
@@ -223,6 +226,10 @@ browser.runtime.onMessage.addListener(message => {
     case "load": {
       status("Loaded content.");
       content_field.value = message.content;
+      break;
+    }
+    case "load:fail": {
+      status(`Failed to load: ${message.error}`);
       break;
     }
     case "list": {
