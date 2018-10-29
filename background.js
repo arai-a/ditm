@@ -1,34 +1,54 @@
 let files;
-
-async function onBeforeRequest(details) {
-  await files;
+let loadingURL = null;
+async function filterRequest(details) {
   const url = details.url;
-  console.log("DITM applied", url);
-  const content = files[url];
 
-  let filter = browser.webRequest.filterResponseData(details.requestId);
-  let encoder = new TextEncoder();
+  const filter = browser.webRequest.filterResponseData(details.requestId);
+  const encoder = new TextEncoder();
 
-  filter.onstop = event => {
-    filter.write(encoder.encode(content));
-    filter.disconnect();
-  };
+  if (loadingURL === url) {
+    loadingURL = null;
+    await refresh();
+    // If we are loading the URL, get the response and pass it back to panel.
+    let content = "";
+    const decoder = new TextDecoder("utf-8");
+    filter.ondata = event => {
+      const str = decoder.decode(event.data, {stream: true});
+      filter.write(encoder.encode(str));
+      content += str;
+    };
+    filter.onstop = event => {
+      browser.runtime.sendMessage({ topic: "load", content });
+      filter.disconnect();
+    };
+  } else {
+    // Otherwise modify the response.
+    filter.onstop = event => {
+      console.log("DITM applied", url);
+      const content = files[url];
+      filter.write(encoder.encode(content));
+      filter.disconnect();
+    };
+  }
 }
 
 let added = false;
 async function refresh() {
   if (added) {
-    browser.webRequest.onBeforeRequest.removeListener(onBeforeRequest);
+    browser.webRequest.onBeforeRequest.removeListener(filterRequest);
     added = false;
   }
 
   const urls = Object.keys(files);
+  if (loadingURL) {
+    urls.push(loadingURL);
+  }
   if (urls.length === 0) {
     return;
   }
 
   browser.webRequest.onBeforeRequest.addListener(
-    onBeforeRequest,
+    filterRequest,
     {
       urls,
     },
@@ -62,15 +82,11 @@ async function run() {
     }
 
     switch (message.topic) {
-      case "load": {
+      case "setLoadingURL": {
         const url = message.url;
-        try {
-          const response = await fetch(url);
-          const content = await response.text();
-          browser.runtime.sendMessage({ topic: "load", content });
-        } catch (e) {
-          browser.runtime.sendMessage({ topic: "load:fail", url, error: e.toString() });
-        }
+        loadingURL = url;
+        await refresh();
+        browser.runtime.sendMessage({ topic: "setLoadingURL:done", url });
         break;
       }
       case "save": {

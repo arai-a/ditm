@@ -53,9 +53,9 @@ used_urls.addEventListener("change", select_used);
 
 async function load() {
   const url = url_field.value;
-  status(`Loading ${url} ...`);
+  status(`Loading...`);
   browser.runtime.sendMessage({
-    topic: "load",
+    topic: "setLoadingURL",
     url,
   });
 }
@@ -221,15 +221,19 @@ async function fillUsedList(urls) {
 }
 
 let initialList = true;
-browser.runtime.onMessage.addListener(message => {
+browser.runtime.onMessage.addListener(async message => {
   switch (message.topic) {
+    case "setLoadingURL:done": {
+      const url = message.url;
+      const urlString = `"${url.replace(/[\"\\]/g, "\\$1")}"`;
+      await browser.devtools.inspectedWindow.eval(`
+fetch(${urlString});
+`);
+      break;
+    }
     case "load": {
       status("Loaded content.");
       content_field.value = message.content;
-      break;
-    }
-    case "load:fail": {
-      status(`Failed to load: ${message.error}`);
       break;
     }
     case "list": {
