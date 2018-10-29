@@ -55,7 +55,7 @@ async function load() {
   const url = url_field.value;
   status(`Loading...`);
   browser.runtime.sendMessage({
-    topic: "setLoadingURL",
+    topic: "load",
     url,
   });
 }

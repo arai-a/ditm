@@ -1,5 +1,6 @@
 let files;
 let loadingURL = null;
+let retrying = false;
 async function filterRequest(details) {
   const url = details.url;
 
@@ -7,8 +8,6 @@ async function filterRequest(details) {
   const encoder = new TextEncoder();
 
   if (loadingURL === url) {
-    loadingURL = null;
-    await refresh();
     // If we are loading the URL, get the response and pass it back to panel.
     let content = "";
     const decoder = new TextDecoder("utf-8");
@@ -18,7 +17,14 @@ async function filterRequest(details) {
       content += str;
     };
     filter.onstop = event => {
-      browser.runtime.sendMessage({ topic: "load", content });
+      if (content || retrying) {
+        loadingURL = null;
+        browser.runtime.sendMessage({ topic: "load", content });
+        refresh();
+      } else {
+        // Fallback to fetching from eval in the tab, and keep listening.
+        retrying = true;
+      }
       filter.disconnect();
     };
   } else {
@@ -35,7 +41,7 @@ async function filterRequest(details) {
 let added = false;
 async function refresh() {
   if (added) {
-    browser.webRequest.onBeforeRequest.removeListener(filterRequest);
+    await browser.webRequest.onBeforeRequest.removeListener(filterRequest);
     added = false;
   }
 
@@ -47,7 +53,7 @@ async function refresh() {
     return;
   }
 
-  browser.webRequest.onBeforeRequest.addListener(
+  await browser.webRequest.onBeforeRequest.addListener(
     filterRequest,
     {
       urls,
@@ -82,11 +88,20 @@ async function run() {
     }
 
     switch (message.topic) {
-      case "setLoadingURL": {
+      case "load": {
         const url = message.url;
         loadingURL = url;
+        retrying = false;
         await refresh();
-        browser.runtime.sendMessage({ topic: "setLoadingURL:done", url });
+
+        try {
+          // First try to fetch from background script.
+          await fetch(url);
+        } catch (e) {
+          // fetch in background script may fail because of tracking protection.
+          // Fallback to fetching from eval in the tab.
+          browser.runtime.sendMessage({ topic: "setLoadingURL:done", url });
+        }
         break;
       }
       case "save": {
