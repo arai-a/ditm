@@ -20,7 +20,7 @@
     </div>
     <div id="url-box">
       <label for="url">URL:</label>
-      <input id="url" type="text">
+      <input id="url" type="text" placeholder="http://">
       <input id="load" type="button" value="Load"><br>
     </div>
     <div id="action-box">
@@ -28,8 +28,21 @@
       <input id="remove" type="button" value="Remove">
       <span id="status"></span>
     </div>
-    <div id="content-box">
-      <textarea id="content"></textarea>
+    <div id="source-chooser">
+      <input id="source-chooser-text" name="source" type="radio" value="text" checked>
+      <label for="source-chooser-text">Text</label>
+      <input id="source-chooser-url" name="source" type="radio" value="url">
+      <label for="source-chooser-url">URL</label>
+    </div>
+    <div id="source-text-box">
+      <textarea id="source-text"></textarea>
+    </div>
+    <div id="source-url-box" style="display: none">
+      Replace the response body with:<br>
+      <div id="source-url-box-inner">
+        <label for="source-url">URL:</label>
+        <input id="source-url" type="text" placeholder="http://">
+      </div>
     </div>
     <script src="ditm-panel.js"></script>
   </body>

@@ -31,9 +31,18 @@ async function filterRequest(details) {
     // Otherwise modify the response.
     filter.onstop = event => {
       console.log("DITM applied", url);
-      const content = files[url];
-      filter.write(encoder.encode(content));
-      filter.disconnect();
+      const file = files[url];
+      if (file.type === "text") {
+        filter.write(encoder.encode(file.content));
+        filter.disconnect();
+      } else {
+        return (async () => {
+          const response = await fetch(file.content, { cache: "reload" });
+          const data = await response.arrayBuffer();
+          filter.write(data);
+          filter.disconnect();
+        })();
+      }
     };
   }
 }
@@ -65,9 +74,31 @@ async function refresh() {
 
 async function load() {
   try {
-    const { files } = await browser.storage.local.get("files");
-    if (!files) {
+    const { files: raw_files } = await browser.storage.local.get("files");
+    if (!raw_files) {
       return {};
+    }
+    if (typeof raw_files !== "object") {
+      return {};
+    }
+    const files = {};
+    for (const url of Object.keys(raw_files)) {
+      const file = raw_files[url];
+      if (typeof file === "string") {
+        files[url] = {
+          type: "text",
+          content: file,
+        };
+      } else if (typeof file === "object") {
+        const type = file.type === "url" ? "url" : "text";
+        const content = (typeof file.content === "string") ? file.content : "";
+        files[url] = {
+          type,
+          content,
+        };
+      } else {
+        return {};
+      }
     }
     return files;
   } catch (e) {
@@ -105,7 +136,10 @@ async function run() {
         break;
       }
       case "save": {
-        files[message.url] = message.content;
+        files[message.url] = {
+          type: message.type,
+          content: message.content,
+        };
         await save();
         await refresh();
         browser.runtime.sendMessage({ topic: "list", files });

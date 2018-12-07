@@ -22,7 +22,9 @@ html, body {
     width: 100%;
     display: flex;
 }
-#content-box {
+#source-text-box,
+#source-url-box-inner {
+    flex: auto;
     width: 100%;
     display: flex;
 }
@@ -35,13 +37,13 @@ html, body {
 #url {
     flex: auto;
 }
-#content-box {
-    flex: auto;
-}
-#content {
+#source-text {
     width: 100%;
     resize: none;
     flex: auto;
+}
+#source-url {
+    width: 100%;
 }
 label {
     min-width: 4em;

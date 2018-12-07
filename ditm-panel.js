@@ -6,12 +6,22 @@ const files_promise = new Promise(resolve => {
   files_resolve = resolve;
 });
 
-const content_field = document.getElementById("content");
-content_field.placeholder = `1. Enter URL above
+const source_text_box = document.getElementById("source-text-box");
+const source_url_box = document.getElementById("source-url-box");
+
+const source_text = document.getElementById("source-text");
+source_text.placeholder = `1. Enter URL above
 2. Hit [Load] or enter
 3. Modify content
 4. Hit [Save]
 5. Load the webpage`;
+
+const source_url = document.getElementById("source-url");
+source_url.addEventListener("keypress", async event => {
+  if (event.key === "Enter") {
+    save();
+  }
+});
 
 const url_field = document.getElementById("url");
 url_field.addEventListener("keypress", async event => {
@@ -21,6 +31,31 @@ url_field.addEventListener("keypress", async event => {
 });
 
 const status_field = document.getElementById("status");
+
+const source_chooser_text = document.getElementById("source-chooser-text");
+source_chooser_text.checked = true;
+const source_chooser_url = document.getElementById("source-chooser-url");
+
+function show(type) {
+  if (type === "text") {
+    source_chooser_text.checked = true;
+    source_chooser_url.checked = false;
+    source_text_box.style.display = "flex";
+    source_url_box.style.display = "none";
+  } else {
+    source_chooser_text.checked = false;
+    source_chooser_url.checked = true;
+    source_text_box.style.display = "none";
+    source_url_box.style.display = "block";
+  }
+}
+
+source_chooser_text.addEventListener("click", () => {
+  show("text");
+});
+source_chooser_url.addEventListener("click", () => {
+  show("url");
+});
 
 const STATUS_TIMEOUT = 10 * 1000;
 let statusTimer = null;
@@ -60,17 +95,29 @@ async function load() {
   });
 }
 async function save() {
-  status(`Saved`);
+  const is_text = source_chooser_text.checked;
+  const type = is_text ? "text" : "url";
+  const content = is_text ? source_text.value : source_url.value;
+
+  if (type === "url" && content.startsWith("file:")) {
+    status(`file:/// cannot be used. Please use http(s):// instead`);
+    return;
+  }
+
   browser.runtime.sendMessage({
     topic: "save",
     url: url_field.value,
-    content: content_field.value,
+    type,
+    content,
   });
+  status(`Saved`);
 }
 async function remove() {
   const url = url_field.value;
   url_field.value = "";
-  content_field.value = "";
+  show("text");
+  source_text.value = "";
+  source_url.value = "";
   needsContent = true;
   status(`Removed`);
   browser.runtime.sendMessage({
@@ -89,8 +136,7 @@ async function select_stored() {
     }
     used_urls.value = "---";
     url_field.value = url;
-    const file = files[stored_urls.value];
-    content_field.value = file;
+    fill_source(files[stored_urls.value]);
     remove_button.disabled = false;
   } catch (e) {
     console.log(e.toString());
@@ -183,6 +229,18 @@ async function initList(list) {
   list.appendChild(option);
 }
 
+function fill_source(file) {
+  if (file.type === "text") {
+    source_text.value = file.content;
+    source_url.value = "";
+    show("text");
+  } else {
+    source_text.value = "";
+    source_url.value = file.content;
+    show("url");
+  }
+}
+
 async function fillStoredList() {
   initList(stored_urls);
 
@@ -197,7 +255,7 @@ async function fillStoredList() {
       stored_urls.value = url;
       remove_button.disabled = false;
       url_field.value = url;
-      content_field.value = files[url];
+      fill_source(files[url]);
     }
     if (url_field.value === url) {
       stored_urls.value = url;
@@ -233,7 +291,9 @@ fetch(${urlString});
     }
     case "load": {
       status("Loaded content.");
-      content_field.value = message.content;
+      source_text.value = message.content;
+      source_url.value = "";
+      show("text");
       break;
     }
     case "list": {
