@@ -37,7 +37,7 @@ for debugging possibly-not-your-own website.
 ### Replace the response with local file
 
 Unfortunately DITM cannot read local file, but you can run local web server and
-use the reponse.
+use the response.
 
 The simple way is to use Python's SimpleHTTPServer module.
 
