@@ -27,6 +27,14 @@ async function filterRequest(details) {
       }
       filter.disconnect();
     };
+  } else if (!(url in files)) {
+    // Same protocol+hostname+pathname but wrong port, so just passthrough
+    filter.ondata = event => {
+      filter.write(event.data);
+    };
+    filter.onstop = event => {
+      filter.disconnect();
+    };
   } else {
     // Otherwise modify the response.
     filter.onstop = event => {
@@ -62,10 +70,16 @@ async function refresh() {
     return;
   }
 
+  const portlessUrls = urls.map(url => {
+    url = new URL(url);
+    url.port = '';
+    return url.href;
+  });
+
   await browser.webRequest.onBeforeRequest.addListener(
     filterRequest,
     {
-      urls,
+      urls: portlessUrls,
     },
     ["blocking"]
   );
