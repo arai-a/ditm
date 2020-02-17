@@ -114,3 +114,9 @@ input[type="text"] {
 #source-url {
     width: 100%;
 }
+
+pre {
+  margin: 4px;
+  border: 1px solid var(--theme-toolbar-separator);
+  padding: 4px;
+}
