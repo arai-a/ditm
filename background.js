@@ -38,7 +38,6 @@ async function filterRequest(details) {
   } else {
     // Otherwise modify the response.
     filter.onstop = event => {
-      console.log("DITM applied", url);
       const file = files[url];
       if (file.type === "text") {
         filter.write(encoder.encode(file.content));
@@ -130,7 +129,6 @@ async function save() {
 
 async function run() {
   files = await load();
-  console.log(JSON.stringify(files));
 
   browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     if (sender.url !== browser.runtime.getURL("/ditm-panel.html")) {
