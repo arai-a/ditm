@@ -32,30 +32,29 @@ url_field.addEventListener("keypress", async event => {
 
 const status_field = document.getElementById("status");
 
-const source_chooser_text = document.getElementById("source-chooser-text");
-source_chooser_text.checked = true;
-const source_chooser_url = document.getElementById("source-chooser-url");
+const source_tabs_text_tab = document.getElementById("source-tabs-text-tab");
+const source_tabs_url_tab = document.getElementById("source-tabs-url-tab");
 
 function show(type) {
   if (type === "text") {
-    source_chooser_text.checked = true;
-    source_chooser_url.checked = false;
-    source_text_box.style.display = "flex";
+    source_text_box.style.display = "";
     source_url_box.style.display = "none";
     pretty_button.disabled = false;
+    source_tabs_text_tab.classList.add("active");
+    source_tabs_url_tab.classList.remove("active");
   } else {
-    source_chooser_text.checked = false;
-    source_chooser_url.checked = true;
     source_text_box.style.display = "none";
-    source_url_box.style.display = "block";
+    source_url_box.style.display = "";
     pretty_button.disabled = true;
+    source_tabs_text_tab.classList.remove("active");
+    source_tabs_url_tab.classList.add("active");
   }
 }
 
-source_chooser_text.addEventListener("click", () => {
+source_tabs_text_tab.addEventListener("click", () => {
   show("text");
 });
-source_chooser_url.addEventListener("click", () => {
+source_tabs_url_tab.addEventListener("click", () => {
   show("url");
 });
 
@@ -72,9 +71,10 @@ function status(text) {
   }, STATUS_TIMEOUT);
 }
 
-document.getElementById("save").addEventListener("click", save);
+document.getElementById("save-text").addEventListener("click", save);
+document.getElementById("save-url").addEventListener("click", save);
 
-document.getElementById("load").addEventListener("click", load);
+document.getElementById("load-text").addEventListener("click", load);
 
 const remove_button = document.getElementById("remove");
 remove_button.addEventListener("click", remove);
@@ -91,6 +91,8 @@ stored_urls.addEventListener("change", select_stored);
 const used_urls = document.getElementById("used-urls");
 used_urls.addEventListener("change", select_used);
 
+show("text");
+
 async function load() {
   const url = url_field.value;
   status(`Loading...`);
@@ -100,7 +102,7 @@ async function load() {
   });
 }
 async function save() {
-  const is_text = source_chooser_text.checked;
+  const is_text = source_tabs_text_tab.classList.contains("active");
   const type = is_text ? "text" : "url";
   const content = is_text ? source_text.value : source_url.value;
 

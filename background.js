@@ -71,9 +71,13 @@ async function refresh() {
   }
 
   const portlessUrls = urls.map(url => {
-    url = new URL(url);
-    url.port = '';
-    return url.href;
+    try {
+      url = new URL(url);
+      url.port = '';
+      return url.href;
+    } catch (e) {
+      return url;
+    }
   });
 
   await browser.webRequest.onBeforeRequest.addListener(
@@ -126,6 +130,7 @@ async function save() {
 
 async function run() {
   files = await load();
+  console.log(JSON.stringify(files));
 
   browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     if (sender.url !== browser.runtime.getURL("/ditm-panel.html")) {

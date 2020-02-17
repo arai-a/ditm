@@ -8,8 +8,9 @@ all:
 	    icon-dark.png \
 	    ditm-dt.js \
 	    ditm-panel.html \
-	    ditm-panel.css \
+	    *.css \
 	    ditm-panel.js \
+	    ditm-panel-theme.js \
 	    pretty-print-worker.js
 
 i: all

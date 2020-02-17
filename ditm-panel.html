@@ -2,49 +2,59 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <script src="ditm-panel-theme.js"></script>
+    <link href="devtools-variables.css" rel="stylesheet" type="text/css">
+    <link href="debugger-variables.css" rel="stylesheet" type="text/css">
+    <link href="devtools-common.css" rel="stylesheet" type="text/css">
+    <link href="devtools-toolbars.css" rel="stylesheet" type="text/css">
+    <link href="debugger-App.css" rel="stylesheet" type="text/css">
+    <link href="debugger-Tabs.css" rel="stylesheet" type="text/css">
     <link href="ditm-panel.css" rel="stylesheet" type="text/css">
   </head>
-  <body>
-    <div id="saved-box">
-      <label for="stored-urls">Saved:</label>
+  <body class="theme-body">
+    <div id="selector-box">
+      <label id="stored-urls-label" for="stored-urls">Saved</label>
       <div id="stored-urls-box">
         <select id="stored-urls"></select>
       </div>
-    </div>
-    <div id="saved-box">
-      <label for="stored-urls">Used:</label>
+      <input id="remove" class="devtools-toolbarbutton" type="button" value="Remove">
+      <label id="used-urls-label" for="stored-urls">Used</label>
       <div id="used-urls-box">
         <select id="used-urls"></select>
       </div>
-      <input id="gather" type="button" value="Reload list"><br>
+      <input id="gather" class="devtools-toolbarbutton" type="button" value="Reload list">
+      <label id="url-label" for="url">URL</label>
+      <input id="url" class="devtools-textinput" type="text" placeholder="http://">
     </div>
-    <div id="url-box">
-      <label for="url">URL:</label>
-      <input id="url" type="text" placeholder="http://">
-      <input id="load" type="button" value="Load"><br>
-    </div>
-    <div id="action-box">
-      <input id="save" type="button" value="Save">
-      <input id="remove" type="button" value="Remove">
-      <input id="pretty" type="button" value="Pretty print JS source">
-      <span id="status"></span>
-    </div>
-    <div id="source-chooser">
-      <input id="source-chooser-text" name="source" type="radio" value="text" checked>
-      <label for="source-chooser-text">Text</label>
-      <input id="source-chooser-url" name="source" type="radio" value="url">
-      <label for="source-chooser-url">URL</label>
-    </div>
-    <div id="source-text-box">
-      <textarea id="source-text"></textarea>
-    </div>
-    <div id="source-url-box" style="display: none">
-      Replace the response body with:<br>
-      <div id="source-url-box-inner">
-        <label for="source-url">URL:</label>
-        <input id="source-url" type="text" placeholder="http://">
+    <div class="source-header">
+      <div id="source-tabs" class="source-tabs">
+        <div id="source-tabs-text-tab" class="source-tab" title="Replace with text">
+          <div class="filename">Text</div>
+        </div>
+        <div id="source-tabs-url-tab" class="source-tab" title="Replace with content from another URL">
+          <div class="filename">URL</div>
+        </div>
       </div>
     </div>
+    <div id="source-text-box">
+      <div class="devtools-toolbar">
+        <input id="save-text" class="devtools-toolbarbutton" type="button" value="Save">
+        <input id="load-text" class="devtools-toolbarbutton" type="button" value="Load from URL">
+        <input id="pretty" class="devtools-toolbarbutton" type="button" value="Pretty print JS source">
+      </div>
+      <textarea id="source-text" class="devtools-textinput"></textarea>
+    </div>
+    <div id="source-url-box" style="display: none">
+      <div class="devtools-toolbar">
+        <input id="save-url" class="devtools-toolbarbutton" type="button" value="Save">
+      </div>
+      Replace the response body with the content from URL
+      <div id="source-url-box-inner">
+        <label for="source-url">URL:</label>
+        <input id="source-url" class="devtools-textinput" type="text" placeholder="http://">
+      </div>
+    </div>
+    <div id="status"></div>
     <script src="ditm-panel.js"></script>
   </body>
 </html>
