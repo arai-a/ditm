@@ -48,11 +48,16 @@
       <div class="devtools-toolbar">
         <input id="save-url" class="devtools-toolbarbutton" type="button" value="Save">
       </div>
-      Replace the response body with the content from URL
+      Replace the response body with the content from the following URL
       <div id="source-url-box-inner">
-        <label for="source-url">URL:</label>
+        <label for="source-url">URL</label>
         <input id="source-url" class="devtools-textinput" type="text" placeholder="http://">
       </div>
+      To use local file, run HTTP server with the following command, and use <code>http://localhost:8000/{FILENAME}</code>.
+      <pre>
+        $ cd {DIRECTORY_THAT_CONTAINS_THE_FILE}
+        $ python -m SimpleHTTPServer 8000
+      </pre>
     </div>
     <div id="status"></div>
     <script src="ditm-panel.js"></script>

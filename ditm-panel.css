@@ -63,6 +63,10 @@ label {
     min-width: 6em;
 }
 
+input[type="text"] {
+    border-color: var(--theme-toolbar-separator);
+}
+
 /* ---- */
 
 .source-tab {
