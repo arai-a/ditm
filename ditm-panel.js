@@ -42,11 +42,13 @@ function show(type) {
     source_chooser_url.checked = false;
     source_text_box.style.display = "flex";
     source_url_box.style.display = "none";
+    pretty_button.disabled = false;
   } else {
     source_chooser_text.checked = false;
     source_chooser_url.checked = true;
     source_text_box.style.display = "none";
     source_url_box.style.display = "block";
+    pretty_button.disabled = true;
   }
 }
 
@@ -77,6 +79,9 @@ document.getElementById("load").addEventListener("click", load);
 const remove_button = document.getElementById("remove");
 remove_button.addEventListener("click", remove);
 remove_button.disabled = true;
+
+const pretty_button = document.getElementById("pretty");
+pretty_button.addEventListener("click", pretty);
 
 document.getElementById("gather").addEventListener("click", gather);
 
@@ -125,6 +130,29 @@ async function remove() {
     url,
   });
   remove_button.disabled = true;
+}
+async function pretty() {
+  const worker = new Worker("pretty-print-worker.js");
+  worker.onmessage = msg => {
+    if (msg.data.results[0].error) {
+      status(msg.data.results[0].message);
+    } else {
+      source_text.value = msg.data.results[0].response.code;
+    }
+  };
+  worker.postMessage({
+    id: 1,
+    method: "prettyPrint",
+    calls: [
+      [
+        {
+          url: "foo",
+          indent: 2,
+          sourceText: source_text.value,
+        }
+      ]
+    ]
+  });
 }
 async function select_stored() {
   try {

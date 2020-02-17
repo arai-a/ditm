@@ -47,3 +47,7 @@ $ python -m SimpleHTTPServer 8000
 ```
 
 And use `http://localhost:8000/{FILENAME}`.
+
+## About pretty print feature
+
+`pretty-print-worker.js` is imported from https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/debugger/dist/pretty-print-worker.js

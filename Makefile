@@ -9,7 +9,8 @@ all:
 	    ditm-dt.js \
 	    ditm-panel.html \
 	    ditm-panel.css \
-	    ditm-panel.js
+	    ditm-panel.js \
+	    pretty-print-worker.js
 
 i: all
 	open -a FirefoxNightly ditm.xpi
