@@ -10,11 +10,10 @@ const source_text_box = document.getElementById("source-text-box");
 const source_url_box = document.getElementById("source-url-box");
 
 const source_text = document.getElementById("source-text");
-source_text.placeholder = `1. Enter URL above
-2. Hit [Load from URL] or enter
-3. Modify content
-4. Hit [Save]
-5. Load the webpage`;
+source_text.placeholder = `1. Select URL from "Used" list
+2. Modify content
+3. Hit save \u2713 button
+4. Reload the webpage`;
 
 const source_url = document.getElementById("source-url");
 source_url.addEventListener("keypress", async event => {
