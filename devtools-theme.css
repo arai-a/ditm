@@ -1,0 +1,33 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Imported from m-c/devtools/client/themes/light-theme.css */
+
+body {
+  margin: 0;
+}
+
+.theme-body {
+  background: var(--theme-body-background);
+  color: var(--theme-body-color);
+}
+
+.theme-sidebar {
+  background: var(--theme-sidebar-background);
+  color: var(--theme-body-color);
+}
+
+.theme-selected {
+  background-color: var(--theme-selection-background);
+  color: var(--theme-selection-color);
+}
+
+.theme-toolbar,
+.devtools-toolbar,
+.devtools-sidebar-tabs tabs,
+.devtools-sidebar-alltabs { /* General toolbar styling */
+  color: var(--theme-body-color);
+  background-color: var(--theme-toolbar-background);
+  border-color: var(--theme-splitter-color);
+}

@@ -48,6 +48,29 @@ $ python -m SimpleHTTPServer 8000
 
 And use `http://localhost:8000/{FILENAME}`.
 
-## About pretty print feature
+## About imported files
 
-`pretty-print-worker.js` is imported from https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/debugger/dist/pretty-print-worker.js
+The following files are imported from https://hg.mozilla.org/mozilla-central/
+  * [`pretty-print-worker.js`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/debugger/dist/pretty-print-worker.js)
+  * [`devtools-common.css`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/themes/common.css)
+  * [`devtools-splitters.css`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/themes/splitters.css)
+  * [`devtools-variables.css`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/themes/variables.css)
+  * [`devtools-toolbars.css`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/themes/toolbars.css)
+  * [`devtools-tooltips.css`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/themes/tooltips.css)
+  * [`debugger-variables.css`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/debugger/src/components/variables.css)
+  * [`debugger-Tabs.css`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/debugger/src/components/Editor/Tabs.css)
+  * [`debugger-App.css`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/debugger/src/components/App.css)
+  * [`devtools-theme.css`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/themes/light-theme.css) (partially)
+  * [`prettyPrint-dark.svg`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/debugger/images/prettyPrint.svg)
+  * [`prettyPrint-light.svg`](https://hg.mozilla.org/mozilla-central/raw-file/tip/devtools/client/debugger/images/prettyPrint.svg)
+
+The following icons are imported from [Photon Icons](https://design.firefox.com/icons/viewer/)
+
+  * `check-dark.svg`
+  * `check-light.svg`
+  * `clear-dark.svg`
+  * `clear-light.svg`
+  * `more-dark.svg`
+  * `more-light.svg`
+  * `refresh-dark.svg`
+  * `refresh-light.svg`
