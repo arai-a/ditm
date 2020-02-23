@@ -83,7 +83,7 @@ remove_button.disabled = true;
 const pretty_button = document.getElementById("pretty");
 pretty_button.addEventListener("click", pretty);
 
-document.getElementById("gather").addEventListener("click", gather);
+document.getElementById("refresh").addEventListener("click", refresh);
 
 const stored_urls = document.getElementById("stored-urls");
 stored_urls.addEventListener("change", select_stored);
@@ -197,7 +197,7 @@ function handleEvalError(error) {
     status("Unknown error: " + error);
   }
 }
-async function gather() {
+async function refresh() {
   const [urls, error] = await browser.devtools.inspectedWindow.eval(`
 (function () {
   const urls = new Set();
@@ -330,7 +330,7 @@ fetch(${urlString});
       if (initialList) {
         initialList = false;
 
-        gather();
+        refresh();
       }
       files = message.files;
       files_resolve(files);
@@ -341,7 +341,7 @@ fetch(${urlString});
 });
 
 browser.devtools.network.onNavigated.addListener(url => {
-  gather();
+  refresh();
 });
 
 fillUsedList([]);

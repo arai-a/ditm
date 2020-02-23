@@ -11,7 +11,8 @@ all:
 	    *.css \
 	    ditm-panel.js \
 	    ditm-panel-theme.js \
-	    pretty-print-worker.js
+	    pretty-print-worker.js \
+	    images/*.svg
 
 i: all
 	open -a FirefoxNightly ditm.xpi

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="theme-dark">
   <head>
     <meta charset="utf-8">
     <script src="ditm-panel-theme.js"></script>
@@ -17,12 +17,12 @@
       <div id="stored-urls-box">
         <select id="stored-urls"></select>
       </div>
-      <input id="remove" class="devtools-toolbarbutton" type="button" value="Remove">
+      <button id="remove" class="devtools-button" title="Remove"></button>
       <label id="used-urls-label" for="stored-urls">Used</label>
       <div id="used-urls-box">
         <select id="used-urls"></select>
       </div>
-      <input id="gather" class="devtools-toolbarbutton" type="button" value="Reload list">
+      <button id="refresh" class="devtools-button" title="Refresh list"></button>
       <label id="url-label" for="url">URL</label>
       <input id="url" class="devtools-textinput" type="text" placeholder="http://">
     </div>
@@ -38,22 +38,26 @@
     </div>
     <div id="source-text-box">
       <div class="devtools-toolbar">
-        <input id="save-text" class="devtools-toolbarbutton" type="button" value="Save">
-        <input id="load-text" class="devtools-toolbarbutton" type="button" value="Load from URL">
-        <input id="pretty" class="devtools-toolbarbutton" type="button" value="Pretty print JS source">
+        <button id="save-text" class="devtools-button" title="Save"></button>
+        <button id="load-text" class="devtools-button" title="Reload from URL"></button>
+        <button id="pretty" class="devtools-button" title="Pretty print JS source"></button>
       </div>
       <textarea id="source-text" class="devtools-textinput"></textarea>
     </div>
     <div id="source-url-box" style="display: none">
       <div class="devtools-toolbar">
-        <input id="save-url" class="devtools-toolbarbutton" type="button" value="Save">
+        <button id="save-url" class="devtools-button" title="Save"></button>
       </div>
-      Replace the response body with the content from the following URL
+      <p>
+        Replace the response body with the content from the following URL
+      </p>
       <div id="source-url-box-inner">
         <label for="source-url">URL</label>
         <input id="source-url" class="devtools-textinput" type="text" placeholder="http://">
       </div>
-      To use local file, run HTTP server with the following command, and use <code>http://localhost:8000/{FILENAME}</code>.
+      <p>
+        To use local file, run HTTP server with the following command, and use <code>http://localhost:8000/{FILENAME}</code>.
+      </p>
       <pre>
 $ cd {DIRECTORY_THAT_CONTAINS_THE_FILE}
 $ python -m SimpleHTTPServer 8000</pre>
