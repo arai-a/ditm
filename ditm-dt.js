@@ -3,10 +3,10 @@
 function icon() {
   switch (browser.devtools.panels.themeName) {
     case "dark": {
-      return "/icon-dark.png";
+      return "/images/tab-dark.svg";
     }
     default: {
-      return "/icon.png";
+      return "/images/tab-light.svg";
     }
   }
 }

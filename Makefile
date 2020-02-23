@@ -4,15 +4,14 @@ all:
 	    background.js \
 	    manifest.json \
 	    ditm-dt.html \
-	    icon.png \
-	    icon-dark.png \
 	    ditm-dt.js \
 	    ditm-panel.html \
 	    *.css \
 	    ditm-panel.js \
 	    ditm-panel-theme.js \
 	    pretty-print-worker.js \
-	    images/*.svg
+	    images/*.svg \
+	    images/*.png
 
 i: all
 	open -a FirefoxNightly ditm.xpi
