@@ -16,9 +16,9 @@ for debugging possibly-not-your-own website.
   1. Choose "DITM" tab in the Developer Tools
   1. Select the resource that you want to modify the response, by either:
      - Select from "Used" resource list
-     - Type URL, and hit "Load" or Enter to load the content
+     - Type URL, and hit "Reload from URL" or Enter to load the content
   1. modify the content shown in the text area
-  1. Hit "Save" button
+  1. Hit "Save" (✓) button
   1. Reload the web page
 
 ### Replace the response with another remote file
@@ -28,10 +28,10 @@ for debugging possibly-not-your-own website.
   1. Choose "DITM" tab in the Developer Tools
   1. Select the resource that you want to replace the response, by either:
      - Select from "Used" resource list
-     - Type URL, and hit "Load" or Enter to load the content
-  1. Select "URL" radio button
+     - Type URL, and hit "Reload from URL" or Enter to load the content
+  1. Select "URL" tab
   1. Enter the URL that returns the replacement body
-  1. Hit "Save" button
+  1. Hit "Save" (✓) button
   1. Reload the web page
 
 ### Replace the response with local file
