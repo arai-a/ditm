@@ -54,6 +54,15 @@ async function filterRequest(details) {
   }
 }
 
+function isValidURL(url) {
+  try {
+    new URL(url);
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+
 let added = false;
 async function refresh() {
   if (added) {
@@ -100,6 +109,10 @@ async function load() {
     }
     const files = {};
     for (const url of Object.keys(raw_files)) {
+      if (!isValidURL(url)) {
+        continue;
+      }
+
       const file = raw_files[url];
       if (typeof file === "string") {
         files[url] = {
@@ -153,13 +166,17 @@ async function run() {
         break;
       }
       case "save": {
-        files[message.url] = {
-          type: message.type,
-          content: message.content,
-        };
-        await save();
-        await refresh();
-        browser.runtime.sendMessage({ topic: "list", files });
+        if (isValidURL(message.url)) {
+          files[message.url] = {
+            type: message.type,
+            content: message.content,
+          };
+          await save();
+          await refresh();
+          browser.runtime.sendMessage({ topic: "list", files });
+        } else {
+          browser.runtime.sendMessage({ topic: "invalid-url", url: message.url });
+        }
         break;
       }
       case "remove": {

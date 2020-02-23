@@ -326,6 +326,10 @@ fetch(${urlString});
       show("text");
       break;
     }
+    case "invalid-url": {
+      status("Invalid URL.");
+      break;
+    }
     case "list": {
       if (initialList) {
         initialList = false;
