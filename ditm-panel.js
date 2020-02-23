@@ -346,7 +346,11 @@ fetch(${urlString});
       break;
     }
     case "invalid-url": {
-      status("Invalid URL.");
+      if (message.kind === "invalid") {
+        status("Invalid URL.");
+      } else if (message.kind === "unsupported") {
+        status("This protocol is not supported.");
+      }
       break;
     }
     case "list": {

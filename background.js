@@ -54,13 +54,21 @@ async function filterRequest(details) {
   }
 }
 
-function isValidURL(url) {
+function getURLKind(text) {
   try {
-    new URL(url);
+    const url = new URL(text);
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      return "ok";
+    }
+    return "unsupported";
   } catch (e) {
-    return false;
+    return "invalid";
   }
   return true;
+}
+
+function isValidURL(text) {
+  return getURLKind(text) === "ok";
 }
 
 let added = false;
@@ -175,7 +183,11 @@ async function run() {
           await refresh();
           browser.runtime.sendMessage({ topic: "list", files });
         } else {
-          browser.runtime.sendMessage({ topic: "invalid-url", url: message.url });
+          browser.runtime.sendMessage({
+            topic: "invalid-url",
+            url: message.url,
+            kind: getURLKind(message.url),
+          });
         }
         break;
       }
