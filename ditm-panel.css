@@ -145,7 +145,7 @@ input[type="text"] {
 #source-url-box-inner {
     width: calc(100% - 4px - 4px);
     display: grid;
-    grid-template-columns: 8em 1fr;
+    grid-template-columns: 8em 1fr calc(22px + 4px + 2px);
     grid-auto-rows: 20px;
     grid-gap: 4px;
     margin: 4px;
@@ -155,6 +155,25 @@ input[type="text"] {
     width: 100%;
 }
 
+#source-url-more-box {
+    position: relative;
+}
+
+#source-url-menu-container {
+    right: 0px;
+    top: 18px;
+    width: 140px;
+}
+#source-url-menu-container .tooltip-arrow {
+    left: calc(140px - (var(--arrow-width) + 2 * var(--shadow-margin)) - 4px);
+}
+
+.theme-light #source-url-more::before {
+    background-image: url("./images/more-light.svg");
+}
+.theme-dark #source-url-more::before {
+    background-image: url("./images/more-dark.svg");
+}
 pre {
   margin: 4px;
   border: 1px solid var(--theme-toolbar-separator);

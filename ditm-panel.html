@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="theme-dark">
   <head>
     <meta charset="utf-8">
     <script src="ditm-panel-theme.js"></script>
@@ -7,6 +7,7 @@
     <link href="debugger-variables.css" rel="stylesheet" type="text/css">
     <link href="devtools-common.css" rel="stylesheet" type="text/css">
     <link href="devtools-toolbars.css" rel="stylesheet" type="text/css">
+    <link href="devtools-tooltips.css" rel="stylesheet" type="text/css">
     <link href="debugger-App.css" rel="stylesheet" type="text/css">
     <link href="debugger-Tabs.css" rel="stylesheet" type="text/css">
     <link href="ditm-panel.css" rel="stylesheet" type="text/css">
@@ -55,8 +56,26 @@
       </p>
       <div id="source-url-box-inner">
         <label for="source-url">URL</label>
-        <input id="source-url" class="devtools-textinput" type="text" placeholder="http://">
+        <input id="source-url" class="devtools-textinput" type="text" placeholder="http://" list="source-url-history">
+        <div id="source-url-more-box">
+          <button id="source-url-more" class="devtools-button" title="More"></button>
+          <div class="tooltip-xul-wrapper">
+            <div class="tooltip-xul-wrapper-inner">
+              <div id="source-url-menu-container" class="tooltip-container tooltip-container-xul tooltip-bottom" type="doorhanger">
+                <div class="tooltip-panel">
+                  <div class="menu-standard-padding" role="menu">
+                    <li class="menuitem" role="presentation">
+                      <button id="source-url-clear-history" class="command" role="menuitem"><span class="label">Clear history</span></button>
+                    </li>
+                  </div>
+                </div>
+                <div class="tooltip-arrow"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+      <datalist id="source-url-history"></datalist>
       <p>
         To use local file, run HTTP server with the following command, and use <code>http://localhost:8000/{FILENAME}</code>.
       </p>

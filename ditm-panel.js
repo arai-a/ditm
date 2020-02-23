@@ -2,6 +2,7 @@ let needsContent = true;
 
 let files_resolve;
 let files;
+let url_history = [];
 const files_promise = new Promise(resolve => {
   files_resolve = resolve;
 });
@@ -20,6 +21,20 @@ source_url.addEventListener("keypress", async event => {
   if (event.key === "Enter") {
     save();
   }
+});
+
+const source_url_more = document.getElementById("source-url-more");
+const source_url_menu_container = document.getElementById("source-url-menu-container");
+source_url_more.addEventListener("click", async event => {
+  source_url_menu_container.classList.toggle("tooltip-visible");
+});
+const source_url_history = document.getElementById("source-url-history");
+const source_url_clear_history = document.getElementById("source-url-clear-history");
+source_url_clear_history.addEventListener("click", async event => {
+  source_url_menu_container.classList.remove("tooltip-visible");
+  browser.runtime.sendMessage({
+    topic: "clear-url-history",
+  });
 });
 
 const url_field = document.getElementById("url");
@@ -254,7 +269,7 @@ async function refresh() {
   fillUsedList(urls);
 }
 
-async function initList(list, defaultText) {
+function initList(list, defaultText) {
   while (list.firstChild) {
     list.firstChild.remove();
   }
@@ -263,6 +278,18 @@ async function initList(list, defaultText) {
   option.value = "---";
   option.textContent = defaultText;
   list.appendChild(option);
+}
+
+function filLDataList(list, items) {
+  while (list.firstChild) {
+    list.firstChild.remove();
+  }
+
+  for (const item of items) {
+    const option = document.createElement("option");
+    option.value = item;
+    list.appendChild(option);
+  }
 }
 
 function fill_source(file) {
@@ -363,6 +390,11 @@ fetch(${urlString});
       fillStoredList();
       break;
     }
+    case "url-history": {
+      url_history = message.history;
+      filLDataList(source_url_history, url_history);
+      break;
+    }
   }
 });
 
@@ -374,4 +406,7 @@ fillUsedList([]);
 
 browser.runtime.sendMessage({
   topic: "list",
+});
+browser.runtime.sendMessage({
+  topic: "get-url-history",
 });

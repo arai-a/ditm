@@ -1,4 +1,5 @@
 let files;
+let url_history;
 let loadingURL = null;
 let retrying = false;
 async function filterRequest(details) {
@@ -144,12 +145,25 @@ async function load() {
   }
 }
 
+async function load_url_history() {
+  try {
+    const { url_history } = await browser.storage.local.get("url_history");
+    if (!url_history) {
+      return [];
+    }
+    return url_history;
+  } catch (e) {
+    return [];
+  }
+}
+
 async function save() {
-  await browser.storage.local.set({ files });
+  await browser.storage.local.set({ files, url_history });
 }
 
 async function run() {
   files = await load();
+  url_history = await load_url_history();
 
   browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     if (sender.url !== browser.runtime.getURL("/ditm-panel.html")) {
@@ -179,9 +193,18 @@ async function run() {
             type: message.type,
             content: message.content,
           };
+          if (message.type === "url") {
+            if (!url_history.includes(message.content)) {
+              url_history.unshift(message.content);
+              if (url_history.length > 6) {
+                url_history.length = 6;
+              }
+            }
+          }
           await save();
           await refresh();
           browser.runtime.sendMessage({ topic: "list", files });
+          browser.runtime.sendMessage({ topic: "url-history", history: url_history });
         } else {
           browser.runtime.sendMessage({
             topic: "invalid-url",
@@ -200,6 +223,16 @@ async function run() {
       }
       case "list": {
         browser.runtime.sendMessage({ topic: "list", files });
+        break;
+      }
+      case "get-url-history": {
+        browser.runtime.sendMessage({ topic: "url-history", history: url_history });
+        break;
+      }
+      case "clear-url-history": {
+        url_history = [];
+        await save();
+        browser.runtime.sendMessage({ topic: "url-history", history: url_history });
         break;
       }
     }

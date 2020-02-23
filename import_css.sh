@@ -13,6 +13,8 @@ cp ${M_C}/devtools/client/themes/splitters.css devtools-splitters.css
 cp ${M_C}/devtools/client/themes/variables.css devtools-variables.css
 cp ${M_C}/devtools/client/themes/toolbars.css devtools-toolbars.css
 
+cp ${M_C}/devtools/client/themes/tooltips.css devtools-tooltips.css
+
 cp ${M_C}/devtools/client/debugger/src/components/variables.css debugger-variables.css
 cp ${M_C}/devtools/client/debugger/src/components/Editor/Tabs.css debugger-Tabs.css
 cp ${M_C}/devtools/client/debugger/src/components/App.css debugger-App.css
