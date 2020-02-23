@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="theme-dark">
+<html>
   <head>
     <meta charset="utf-8">
     <script src="ditm-panel-theme.js"></script>
@@ -41,12 +41,14 @@
         <button id="save-text" class="devtools-button" title="Save"></button>
         <button id="load-text" class="devtools-button" title="Reload from URL"></button>
         <button id="pretty" class="devtools-button" title="Pretty print JS source"></button>
+        <div id="status-text"></div>
       </div>
       <textarea id="source-text" class="devtools-textinput"></textarea>
     </div>
     <div id="source-url-box" style="display: none">
       <div class="devtools-toolbar">
         <button id="save-url" class="devtools-button" title="Save"></button>
+        <div id="status-url"></div>
       </div>
       <p>
         Replace the response body with the content from the following URL
@@ -62,7 +64,6 @@
 $ cd {DIRECTORY_THAT_CONTAINS_THE_FILE}
 $ python -m SimpleHTTPServer 8000</pre>
     </div>
-    <div id="status"></div>
     <script src="ditm-panel.js"></script>
   </body>
 </html>

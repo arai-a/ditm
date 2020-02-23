@@ -87,6 +87,11 @@ input[type="text"] {
     margin-right: auto;
 }
 
+#status-text, #status-url {
+    display: inline;
+    margin: 0 20px;
+}
+
 /* ---- */
 
 #source-text-box {

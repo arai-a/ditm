@@ -30,7 +30,10 @@ url_field.addEventListener("keypress", async event => {
   }
 });
 
-const status_field = document.getElementById("status");
+const status_fields = [
+  document.getElementById("status-text"),
+  document.getElementById("status-url"),
+];
 
 const source_tabs_text_tab = document.getElementById("source-tabs-text-tab");
 const source_tabs_url_tab = document.getElementById("source-tabs-url-tab");
@@ -65,9 +68,13 @@ function status(text) {
     clearTimeout(statusTimer);
     statusTimer = null;
   }
-  status_field.textContent = text;
+  for (const status_field of status_fields) {
+    status_field.textContent = text;
+  }
   setTimeout(() => {
-    status_field.textContent = "";
+    for (const status_field of status_fields) {
+      status_field.textContent = "";
+    }
   }, STATUS_TIMEOUT);
 }
 
