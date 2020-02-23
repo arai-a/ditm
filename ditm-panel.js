@@ -248,14 +248,14 @@ async function refresh() {
   fillUsedList(urls);
 }
 
-async function initList(list) {
+async function initList(list, defaultText) {
   while (list.firstChild) {
     list.firstChild.remove();
   }
 
   const option = document.createElement("option");
   option.value = "---";
-  option.textContent = "---";
+  option.textContent = defaultText;
   list.appendChild(option);
 }
 
@@ -272,7 +272,13 @@ function fill_source(file) {
 }
 
 async function fillStoredList() {
-  initList(stored_urls);
+  let defaultText;
+  if (Object.keys(files).length > 0) {
+    defaultText = "--- Select URL to load ---";
+  } else {
+    defaultText = "--- Nothing are saved ---";
+  }
+  initList(stored_urls, defaultText);
 
   for (const url of Object.keys(files).sort()) {
     const option = document.createElement("option");
@@ -294,7 +300,13 @@ async function fillStoredList() {
 }
 
 async function fillUsedList(urls) {
-  initList(used_urls);
+  let defaultText;
+  if (urls.length > 0) {
+    defaultText = "--- Select URL to load ---";
+  } else {
+    defaultText = "--- No resources ---";
+  }
+  initList(used_urls, defaultText);
 
   for (const url of urls.sort()) {
     if (url.startsWith("about:")) {
