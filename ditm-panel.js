@@ -368,7 +368,6 @@ fetch(${urlString});
       status("Loaded content.");
       source_text.value = message.content;
       source_url.value = "";
-      show("text");
       break;
     }
     case "invalid-url": {
