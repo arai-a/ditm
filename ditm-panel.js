@@ -283,7 +283,7 @@ async function fillStoredList() {
   if (Object.keys(files).length > 0) {
     defaultText = "--- Select URL to load ---";
   } else {
-    defaultText = "--- Nothing are saved ---";
+    defaultText = "--- Nothing is saved ---";
   }
   initList(stored_urls, defaultText);
 
