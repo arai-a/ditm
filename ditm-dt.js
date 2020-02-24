@@ -1,5 +1,3 @@
-// TODO: prepare smaller icon
-
 function icon() {
   switch (browser.devtools.panels.themeName) {
     case "dark": {
