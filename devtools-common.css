@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("devtools-splitters.css");
+
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root {
@@ -471,15 +471,15 @@ checkbox:-moz-focusring {
 /* Icons */
 
 .devtools-button.devtools-clear-icon::before {
-  background-image: url("chrome://devtools/skin/images/clear.svg");
+  background-image: url("./images/clear.svg");
 }
 
 .devtools-toolbarbutton.devtools-clear-icon {
-  list-style-image: url("chrome://devtools/skin/images/clear.svg");
+  list-style-image: url("./images/clear.svg");
 }
 
 .devtools-option-toolbarbutton {
-  list-style-image: url("chrome://devtools/skin/images/settings.svg");
+  list-style-image: url("./images/settings.svg");
 }
 
 .devtools-toolbarbutton-group > .devtools-toolbarbutton:last-child {
@@ -491,7 +491,7 @@ checkbox:-moz-focusring {
 }
 
 .devtools-button.devtools-feature-callout::after {
-  content: url("chrome://browser/skin/badge-blue.svg");
+  content: url("./images/badge-blue.svg");
   width: 14px;
   height: 14px;
   display: block;
@@ -526,11 +526,11 @@ checkbox:-moz-focusring {
 }
 
 .devtools-searchinput {
-  background-image: url(chrome://devtools/skin/images/search.svg);
+  background-image: url(./images/search.svg);
 }
 
 .devtools-filterinput {
-  background-image: url(chrome://devtools/skin/images/filter-small.svg);
+  background-image: url(./images/filter-small.svg);
 }
 
 .devtools-searchinput:-moz-locale-dir(rtl),
@@ -588,7 +588,7 @@ checkbox:-moz-focusring {
   width: 16px;
   height: 16px;
   background-color: transparent;
-  background-image: url("chrome://devtools/skin/images/search-clear.svg");
+  background-image: url("./images/search-clear.svg");
   -moz-context-properties: fill, fill-opacity;
   fill: var(--theme-icon-color);
   fill-opacity: 0.8;
@@ -637,7 +637,7 @@ checkbox:-moz-focusring {
   width: 14px;
   height: 14px;
   cursor: pointer;
-  background-image: url("chrome://devtools/skin/images/arrow.svg");
+  background-image: url("./images/arrow.svg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: 10px;
@@ -707,7 +707,7 @@ checkbox:-moz-focusring {
   border-inline-start: 1px solid var(--theme-splitter-color);
 
   background: var(--theme-tab-toolbar-background);
-  background-image: url("chrome://devtools/skin/images/dropmarker.svg");
+  background-image: url("./images/dropmarker.svg");
   background-repeat: no-repeat;
   background-position: center;
   -moz-context-properties: fill;

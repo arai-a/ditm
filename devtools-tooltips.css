@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* Import stylesheets for specific tooltip widgets */
-@import url(chrome://devtools/skin/badge.css);
-@import url(chrome://devtools/skin/accessibility-color-contrast.css);
-@import url(chrome://devtools/content/shared/widgets/cubic-bezier.css);
-@import url(chrome://devtools/content/shared/widgets/filter-widget.css);
-@import url(chrome://devtools/content/shared/widgets/spectrum.css);
+
+
+
+
+
 
 /* Tooltip specific theme variables */
 
@@ -437,7 +437,7 @@ strong {
   list-style-image: none;
   -moz-context-properties: fill;
   fill: currentColor;
-  background: url(chrome://global/skin/icons/check.svg) no-repeat transparent;
+  background: url(./images/check.svg) no-repeat transparent;
   background-size: 11px 11px;
   background-position: center left 7px;
 }
@@ -543,7 +543,7 @@ strong {
 .event-tooltip-debugger-icon {
   -moz-context-properties: stroke;
   stroke: var(--theme-icon-color);
-  background-image: url("resource://devtools/client/shared/components/reps/images/jump-definition.svg");
+  background-image: url("./images/jump-definition.svg");
   background-repeat: no-repeat;
   background-position: center;
   width: 20px;
@@ -722,7 +722,7 @@ strong {
 }
 
 .invoke-confirm .close-confirm-dialog-button::before {
-  background-image: url("chrome://devtools/skin/images/close.svg");
+  background-image: url("./images/close.svg");
 }
 
 .invoke-confirm .confirm-label {
@@ -785,7 +785,7 @@ strong {
   height: 14px;
   fill: currentColor;
   -moz-context-properties: fill;
-  background-image: url(chrome://devtools/skin/images/help.svg);
+  background-image: url(./images/help.svg);
   background-size: contain;
   background-repeat: no-repeat;
   margin-inline-start: 4px;

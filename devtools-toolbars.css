@@ -167,7 +167,7 @@ splitter.devtools-horizontal-splitter,
 
 /* Dropdown Menu Button */
 .devtools-dropdown-button {
-  background-image: url("chrome://devtools/skin/images/select-arrow.svg") !important;
+  background-image: url("./images/select-arrow.svg") !important;
   background-position: right center !important;
   background-repeat: no-repeat !important;
   text-overflow: ellipsis;
