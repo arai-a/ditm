@@ -58,7 +58,7 @@
       </p>
       <div id="source-url-box-inner">
         <label for="source-url">URL</label>
-        <input id="source-url" class="devtools-textinput" type="text" placeholder="http://" list="source-url-history">
+        <input id="source-url" class="devtools-textinput" type="text" placeholder="http://" list="source-url-history" autocomplete="off">
         <div id="source-url-more-box">
           <button id="source-url-more" class="devtools-button" title="More"></button>
           <div class="tooltip-xul-wrapper">
@@ -83,7 +83,7 @@
       </p>
       <pre>
 $ cd {DIRECTORY_THAT_CONTAINS_THE_FILE}
-$ python -m SimpleHTTPServer 8000</pre>
+$ python3 -m http.server 8000</pre>
     </div>
     <script src="ditm-panel.js"></script>
   </body>

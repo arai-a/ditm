@@ -39,11 +39,11 @@ for debugging possibly-not-your-own website.
 Unfortunately DITM cannot read local file, but you can run local web server and
 use the response.
 
-The simple way is to use Python's SimpleHTTPServer module.
+The simple way is to use Python 3's `http.server` module.
 
 ```
 $ cd {DIRECTORY_THAT_CONTAINS_THE_FILE}
-$ python -m SimpleHTTPServer 8000
+$ python3 -m http.server 8000
 ```
 
 And use `http://localhost:8000/{FILENAME}`.
