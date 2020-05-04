@@ -2,6 +2,45 @@ let files;
 let url_history;
 let loadingURL = null;
 let retrying = false;
+let patternCache = {};
+
+function toPattern(url) {
+  if (url in patternCache) {
+    return patternCache[url];
+  }
+
+  const pattern = new RegExp(url
+                             .replace(/([\^\$\\\.\+\?\(\)\[\]\{\}\|])/g, "\\$1")
+                             .replace(/\*/, ".*"));
+  patternCache[url] = pattern;
+  return pattern;
+}
+
+function findFile(targetURL) {
+  if (targetURL in files) {
+    const file = files[targetURL];
+    if (file.match === "exact") {
+      return file;
+    }
+  }
+
+  for (const url in files) {
+    const file = files[url];
+    if (file.match === "forward") {
+      if (targetURL.startsWith(url)) {
+        return file;
+      }
+    } else if (file.match === "wildcard") {
+      const pattern = toPattern(url);
+      if (pattern.test(targetURL)) {
+        return file;
+      }
+    }
+  }
+
+  return null;
+}
+
 async function filterRequest(details) {
   const url = details.url;
 
@@ -28,18 +67,13 @@ async function filterRequest(details) {
       }
       filter.disconnect();
     };
-  } else if (!(url in files)) {
-    // Same protocol+hostname+pathname but wrong port, so just passthrough
-    filter.ondata = event => {
-      filter.write(event.data);
-    };
+    return;
+  }
+
+  const file = findFile(url);
+  if (file) {
+    // Modify the response.
     filter.onstop = event => {
-      filter.disconnect();
-    };
-  } else {
-    // Otherwise modify the response.
-    filter.onstop = event => {
-      const file = files[url];
       if (file.type === "text") {
         filter.write(encoder.encode(file.content));
         filter.disconnect();
@@ -51,8 +85,19 @@ async function filterRequest(details) {
           filter.disconnect();
         })();
       }
+      return undefined;
     };
+
+    return;
   }
+
+  // Same protocol+hostname+pathname but wrong port, so just passthrough
+  filter.ondata = event => {
+    filter.write(event.data);
+  };
+  filter.onstop = event => {
+    filter.disconnect();
+  };
 }
 
 function getURLKind(text) {
@@ -79,7 +124,15 @@ async function refresh() {
     added = false;
   }
 
-  const urls = Object.keys(files);
+  const urls = [];
+  for (const url in files) {
+    const file = files[url];
+    if (file.match === "exact" || file.match === "wildcard") {
+      urls.push(url);
+    } else if (file.match === "forward") {
+      urls.push(url + "*");
+    }
+  }
   if (loadingURL) {
     urls.push(loadingURL);
   }
@@ -125,13 +178,26 @@ async function load() {
       const file = raw_files[url];
       if (typeof file === "string") {
         files[url] = {
+          match: "exact",
           type: "text",
           content: file,
         };
       } else if (typeof file === "object") {
+        let match;
+        switch (file.match) {
+          case "exact":
+          case "forward":
+          case "wildcard":
+            match = file.match;
+            break;
+          default:
+            match = "exact";
+            break;
+        }
         const type = file.type === "url" ? "url" : "text";
         const content = (typeof file.content === "string") ? file.content : "";
         files[url] = {
+          match,
           type,
           content,
         };
@@ -190,6 +256,7 @@ async function run() {
       case "save": {
         if (isValidURL(message.url)) {
           files[message.url] = {
+            match: message.match,
             type: message.type,
             content: message.content,
           };
@@ -216,6 +283,7 @@ async function run() {
       }
       case "remove": {
         delete files[message.url];
+        patternCache = {};
         await save();
         await refresh();
         browser.runtime.sendMessage({ topic: "list", files });

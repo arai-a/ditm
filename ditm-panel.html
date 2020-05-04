@@ -27,7 +27,14 @@
       </div>
       <button id="refresh" class="devtools-button" title="Refresh list"></button>
       <label id="url-label" for="url">URL</label>
-      <input id="url" class="devtools-textinput" type="text" placeholder="http://">
+      <div id="url-box">
+        <input id="url" class="devtools-textinput" type="text" placeholder="http://">
+        <select id="url-match">
+          <option value="exact" selected>Exact match</option>
+          <option value="forward">Forward match</option>
+          <option value="wildcard">Use wildcard</option>
+        </select>
+      </div>
     </div>
     <div class="source-header">
       <div id="source-tabs" class="source-tabs">

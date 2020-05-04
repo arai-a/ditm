@@ -25,6 +25,15 @@ label {
     width: 100%;
 }
 
+#url-box {
+    display: flex;
+    flex-direction: row;
+}
+
+#url {
+    flex: 1;
+}
+
 .theme-light #remove::before {
     background-image: url("./images/clear-light.svg");
 }

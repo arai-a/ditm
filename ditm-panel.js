@@ -44,6 +44,8 @@ url_field.addEventListener("keypress", async event => {
   }
 });
 
+const match_field = document.getElementById("url-match");
+
 const status_fields = [
   document.getElementById("status-text"),
   document.getElementById("status-url"),
@@ -135,6 +137,7 @@ async function save() {
   browser.runtime.sendMessage({
     topic: "save",
     url: url_field.value,
+    match: match_field.value,
     type,
     content,
   });
@@ -143,6 +146,7 @@ async function save() {
 async function remove() {
   const url = url_field.value;
   url_field.value = "";
+  match_field.value = "exact";
   show("text");
   source_text.value = "";
   source_url.value = "";
@@ -187,7 +191,9 @@ async function select_stored() {
     }
     used_urls.value = "---";
     url_field.value = url;
-    fill_source(files[stored_urls.value]);
+    const file = files[stored_urls.value];
+    match_field.value = file.match;
+    fill_source(file);
     remove_button.disabled = false;
   } catch (e) {
     console.log(e.toString());
@@ -202,6 +208,7 @@ async function select_used() {
     stored_urls.value = "---";
     remove_button.disabled = true;
     url_field.value = url;
+    match_field.value = "exact";
     await load();
   } catch (e) {
     console.log(e.toString());
@@ -314,9 +321,17 @@ async function fillStoredList() {
   initList(stored_urls, defaultText);
 
   for (const url of Object.keys(files).sort()) {
+    const file = files[url];
+
     const option = document.createElement("option");
     option.value = url;
-    option.textContent = url;
+    let label = url;
+    if (file.match === "forward") {
+      label += "  (forward match)";
+    } else if (file.match === "wildcard") {
+      label += "  (wildcard)";
+    }
+    option.textContent = label;
     stored_urls.appendChild(option);
 
     if (needsContent) {
@@ -324,7 +339,9 @@ async function fillStoredList() {
       stored_urls.value = url;
       remove_button.disabled = false;
       url_field.value = url;
-      fill_source(files[url]);
+      const file = files[url];
+      match_field.value = file.match;
+      fill_source(file);
     }
     if (url_field.value === url) {
       stored_urls.value = url;
