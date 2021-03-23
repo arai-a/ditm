@@ -8,5 +8,20 @@ function updateThemeClass() {
   }
 }
 
+function setPlatformClass() {
+  let os;
+  const platform = navigator.platform;
+  if (platform.startsWith("Win")) {
+    os = "win";
+  } else if (platform.startsWith("Mac")) {
+    os = "mac";
+  } else {
+    os = "linux";
+  }
+
+  document.documentElement.setAttribute("platform", os);
+}
+
+setPlatformClass();
 browser.devtools.panels.onThemeChanged.addListener(updateThemeClass);
 updateThemeClass();

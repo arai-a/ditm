@@ -105,6 +105,8 @@ input[type="text"] {
     width: 100%;
     resize: none;
     flex: auto;
+    font-family: var(--monospace-font-family);
+    font-size: var(--theme-code-font-size);
 }
 
 /* ---- */
