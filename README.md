@@ -48,6 +48,19 @@ $ python3 -m http.server 8000
 
 And use `http://localhost:8000/{FILENAME}`.
 
+### Replicate all used files in local directory and replace the all responses with them
+
+Apply "replace the response with local file" for all files used in the page, with the following steps:
+
+  1. Open the web page
+  1. Open Developer Tools
+  1. Choose "DITM" tab in the Developer Tools
+  1. Select "Replicate" tab
+  1. Hit "Download script and start mapping URLs" button
+  1. Save `ditm-replicate.py` in temporary directory
+  1. Run `python3 ditm-replicate.py` to extract the files, and run the local server
+  1. Reload the web page
+
 ## About imported files
 
 The following files are imported from https://hg.mozilla.org/mozilla-central/

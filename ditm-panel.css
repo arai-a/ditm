@@ -21,6 +21,10 @@ label {
     padding: 2px 20px;
 }
 
+label.inline {
+    padding: 2px 2px;
+}
+
 #stored-urls {
     width: 100%;
 }

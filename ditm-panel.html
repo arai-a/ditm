@@ -44,6 +44,9 @@
         <div id="source-tabs-url-tab" class="source-tab" title="Replace with content from another URL">
           <div class="filename">URL</div>
         </div>
+        <div id="source-tabs-replicate-tab" class="source-tab" title="Replicate all">
+          <div class="filename">Replicate</div>
+        </div>
       </div>
     </div>
     <div id="source-text-box">
@@ -91,6 +94,37 @@
       <pre>
 $ cd {DIRECTORY_THAT_CONTAINS_THE_FILE}
 $ python3 -m http.server 8000</pre>
+    </div>
+    <div id="source-replicate-box" style="display: none">
+      <p>
+        Download all used files, and map those URLs to the local server
+      </p>
+      <ol>
+        <li>
+          <button id="source-replicate-download" class="devtools-button" data-standalone="true">Download script and start mapping URLs</button>
+          <progress id="source-replicate-progress" style="display: none" max="100" value="0">0%</progress>
+          <span id="status-replicate"></span>
+        </li>
+        <li>
+          <button id="source-replicate-start" class="devtools-button" data-standalone="true" disabled>Start mapping URLs</button>
+          <button id="source-replicate-stop" class="devtools-button" data-standalone="true" disabled>Stop mapping URLs</button>
+        </li>
+      </ol>
+
+      <p>
+        After downloading <code>ditm-replicate.py</code>, run the following to extract the files and run the local server.
+        All used URLs are mapped to http://localhost:{PORT}/{FILENAME}
+      </p>
+      <pre id="source-replicate-command-server">
+$ python3 ditm-replicate.py</pre>
+      <pre id="source-replicate-command-no-server" style="display: none">
+$ python3 ditm-replicate.py && cd ditm-replica && python3 -m http.server {PORT}</pre>
+
+      <label class="inline">Configuration:</label>
+      <input type="checkbox" id="source-replicate-server" checked>
+      <label class="inline" for="source-replicate-server">Run server automatically</label>
+      <label class="inline" for="source-replicate-port">using port</label>
+      <input id="source-replicate-port" class="devtools-textinput" type="text" value="8000" size="6">
     </div>
     <script src="ditm-panel.js"></script>
   </body>

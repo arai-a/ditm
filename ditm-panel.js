@@ -9,6 +9,7 @@ const files_promise = new Promise(resolve => {
 
 const source_text_box = document.getElementById("source-text-box");
 const source_url_box = document.getElementById("source-url-box");
+const source_replicate_box = document.getElementById("source-replicate-box");
 
 const source_text = document.getElementById("source-text");
 source_text.placeholder = `1. Select URL from "Used" list
@@ -51,22 +52,43 @@ const status_fields = [
   document.getElementById("status-url"),
 ];
 
+const replicate_status = document.getElementById("status-replicate");
+
 const source_tabs_text_tab = document.getElementById("source-tabs-text-tab");
 const source_tabs_url_tab = document.getElementById("source-tabs-url-tab");
+const source_tabs_replicate_tab = document.getElementById("source-tabs-replicate-tab");
 
 function show(type) {
   if (type === "text") {
     source_text_box.style.display = "";
     source_url_box.style.display = "none";
+    source_replicate_box.style.display = "none";
+
     pretty_button.disabled = false;
+
     source_tabs_text_tab.classList.add("active");
     source_tabs_url_tab.classList.remove("active");
-  } else {
+    source_tabs_replicate_tab.classList.remove("active");
+  } else if (type === "url") {
     source_text_box.style.display = "none";
     source_url_box.style.display = "";
+    source_replicate_box.style.display = "none";
+
     pretty_button.disabled = true;
+
     source_tabs_text_tab.classList.remove("active");
     source_tabs_url_tab.classList.add("active");
+    source_tabs_replicate_tab.classList.remove("active");
+  } else {
+    source_text_box.style.display = "none";
+    source_url_box.style.display = "none";
+    source_replicate_box.style.display = "";
+
+    pretty_button.disabled = true;
+
+    source_tabs_text_tab.classList.remove("active");
+    source_tabs_url_tab.classList.remove("active");
+    source_tabs_replicate_tab.classList.add("active");
   }
 }
 
@@ -75,6 +97,9 @@ source_tabs_text_tab.addEventListener("click", () => {
 });
 source_tabs_url_tab.addEventListener("click", () => {
   show("url");
+});
+source_tabs_replicate_tab.addEventListener("click", () => {
+  show("replicate");
 });
 
 const STATUS_TIMEOUT = 10 * 1000;
@@ -113,6 +138,33 @@ stored_urls.addEventListener("change", select_stored);
 
 const used_urls = document.getElementById("used-urls");
 used_urls.addEventListener("change", select_used);
+
+const replicate_progress = document.getElementById("source-replicate-progress");
+
+const replicate_download = document.getElementById("source-replicate-download");
+replicate_download.addEventListener("click", download_script);
+
+const replicate_start = document.getElementById("source-replicate-start");
+replicate_start.addEventListener("click", start_replicate);
+
+const replicate_stop = document.getElementById("source-replicate-stop");
+replicate_stop.addEventListener("click", stop_replicate);
+
+const replicate_port = document.getElementById("source-replicate-port");
+const replicate_server = document.getElementById("source-replicate-server");
+
+const command_server = document.getElementById("source-replicate-command-server");
+const command_no_server = document.getElementById("source-replicate-command-no-server");
+
+replicate_server.addEventListener("change", () => {
+  if (replicate_server.checked) {
+    command_server.style.display = "";
+    command_no_server.style.display = "none";
+  } else {
+    command_server.style.display = "none";
+    command_no_server.style.display = "";
+  }
+});
 
 show("text");
 
@@ -320,6 +372,8 @@ async function fillStoredList() {
   }
   initList(stored_urls, defaultText);
 
+  const isReplicate = source_tabs_replicate_tab.classList.contains("active");
+
   for (const url of Object.keys(files).sort()) {
     const file = files[url];
 
@@ -333,6 +387,10 @@ async function fillStoredList() {
     }
     option.textContent = label;
     stored_urls.appendChild(option);
+
+    if (isReplicate) {
+      continue;
+    }
 
     if (needsContent) {
       needsContent = false;
@@ -370,6 +428,235 @@ async function fillUsedList(urls) {
   }
 }
 
+let replicate_promise_map = new Map();
+
+function filter_filename(filename) {
+  return filename.replace(/[%$&~\\:;\*\?\"\'\| <>\[\]\(\)]/g, "_");
+}
+
+function get_filename(url, files) {
+  url = url.replace(/#.*$/, "");
+  url = url.replace(/\?.*$/, "");
+
+  let name, ext;
+
+  const m = url.match(/\/([^\/\.]+)\.([^\/]+)$/);
+  if (m) {
+    name = m[1];
+    ext = "." + m[2];
+  } else {
+    const m = url.match(/\/([^\/]+)$/);
+    if (m) {
+      name = m[1];
+      ext = ".html";
+    } else {
+      name = "index";
+      ext = ".html";
+    }
+  }
+
+  const filename = filter_filename(`${name}${ext}`);
+  if (!files.has(filename)) {
+    return filename;
+  }
+
+  let i = 2;
+  while (true) {
+    const filename = filter_filename(`${name}-${i}${ext}`);
+    if (!files.has(filename)) {
+      return filename;
+    }
+    i++;
+  }
+}
+
+let replicate_list = null;
+let replicate_script = null;
+
+async function download_script() {
+  const urls = [];
+  used_urls.querySelectorAll("option").forEach(option => {
+    if (option.value.startsWith("---")) {
+      return;
+    }
+    urls.push(option.value);
+  });
+
+  const port = replicate_port.value;
+
+  const files = new Map();
+
+  files.set("README.txt", { url: null, content: "" });
+
+  replicate_progress.style.display = "";
+  replicate_progress.value = 0;
+
+  replicate_list = [];
+
+  for (const url of urls) {
+    const content = await new Promise(resolve => {
+      replicate_promise_map.set(url, resolve);
+
+      replicate_status.textContent = `Loading ${url}`;
+
+      browser.runtime.sendMessage({
+        topic: "load",
+        url,
+      });
+    });
+
+    let filename = get_filename(url, files);
+
+    files.set(filename, { url, content });
+
+    const local_url = `http://localhost:${port}/${filename}`;
+    replicate_list.push([url, local_url]);
+
+    replicate_progress.value = Math.round(100 * files.size / urls.length);
+  }
+
+  const page_url = await browser.devtools.inspectedWindow.eval(`
+document.location.href;
+`);
+
+  let README = `\
+This directory contains replica of
+${page_url}
+
+Files map to the following URLs:
+`;
+
+  for (const [filename, file] of files) {
+    if (filename === "README.txt") {
+      continue;
+    }
+
+    README += `\
+  * ${filename} : ${file.url}
+`;
+  }
+
+  files.get("README.txt").content = README;
+
+  let script = `\
+#!/usr/bin/env python3
+
+import base64
+import os
+import subprocess
+import sys
+
+dir = 'ditm-replica'
+port = '${port}'
+
+i = 2;
+while os.path.exists(dir):
+    dir = 'ditm-replica-{}'.format(i)
+    i += 1
+
+os.mkdir(dir)
+
+files = [
+`;
+
+  for (const [filename, file] of files) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(file.content);
+    const codes = [];
+    for (var c of data) {
+      codes.push(String.fromCharCode(c));
+    }
+    const raw = codes.join("");
+    let b64 = btoa(raw);
+
+    let b64_lines = "";
+    while (b64.length > 72) {
+      const line = b64.slice(0, 72);
+      b64_lines += `\
+b'${line}' +
+`;
+      b64 = b64.slice(72);
+    }
+    b64_lines += `\
+b'${b64}'
+`;
+
+    script += `\
+['${filename}',
+${b64_lines}],
+`;
+  }
+
+script += `\
+]
+
+print('Extracting...')
+
+for file in files:
+    filename = file[0]
+    b64 = file[1]
+    content = base64.decodebytes(b64).decode()
+
+    print(os.path.join(dir, filename))
+
+    with open(os.path.join(dir, filename), 'w') as f:
+      f.write(content)
+`;
+
+  if (replicate_server.checked) {
+    script += `\
+
+print('Running HTTP server...')
+
+os.chdir(dir)
+subprocess.run(['python3', '-m', 'http.server', port])
+`;
+} else {
+    script += `\
+
+print('Run the following to start server:')
+print('$ cd {} && python3 -m http.server {}'.format(dir, port))
+`;
+  }
+
+  replicate_script = script;
+
+  replicate_status.textContent = `Loaded ${files.size} file(s)`;
+
+  const url = URL.createObjectURL(new Blob([replicate_script]));
+  const a = document.createElement("a");
+  a.download = "ditm-replicate.py";
+  a.href = url;
+  replicate_download.after(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  replicate_start.disabled = false;
+
+  start_replicate();
+}
+
+function start_replicate() {
+  replicate_start.disabled = true;
+  replicate_stop.disabled = false;
+
+  browser.runtime.sendMessage({
+    topic: "replicate-start",
+    list: replicate_list,
+  });
+}
+
+function stop_replicate() {
+  replicate_start.disabled = false;
+  replicate_stop.disabled = true;
+
+  browser.runtime.sendMessage({
+    topic: "replicate-stop",
+    list: replicate_list,
+  });
+}
+
 let initialList = true;
 browser.runtime.onMessage.addListener(async message => {
   switch (message.topic) {
@@ -382,9 +669,19 @@ fetch(${urlString});
       break;
     }
     case "load": {
-      status("Loaded content.");
-      source_text.value = message.content;
-      source_url.value = "";
+      if (source_tabs_replicate_tab.classList.contains("active")) {
+        const url = message.url;
+        const content = message.content;
+        if (replicate_promise_map.has(url)) {
+          const resolve = replicate_promise_map.get(url);
+          replicate_promise_map.delete(url);
+          resolve(content);
+        }
+      } else {
+        status("Loaded content.");
+        source_text.value = message.content;
+        source_url.value = "";
+      }
       break;
     }
     case "invalid-url": {

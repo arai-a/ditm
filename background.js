@@ -59,7 +59,7 @@ async function filterRequest(details) {
     filter.onstop = event => {
       if (content || retrying) {
         loadingURL = null;
-        browser.runtime.sendMessage({ topic: "load", content });
+        browser.runtime.sendMessage({ topic: "load", content, url });
         refresh();
       } else {
         // Fallback to fetching from eval in the tab, and keep listening.
@@ -279,6 +279,28 @@ async function run() {
             kind: getURLKind(message.url),
           });
         }
+        break;
+      }
+      case "replicate-start": {
+        for (const [url, local_url] of message.list) {
+          files[url] = {
+            match: "exact",
+            type: "url",
+            content: local_url,
+          };
+        }
+        await save();
+        await refresh();
+        browser.runtime.sendMessage({ topic: "list", files });
+        break;
+      }
+      case "replicate-stop": {
+        for (const [url, local_url] of message.list) {
+          delete files[url];
+        }
+        await save();
+        await refresh();
+        browser.runtime.sendMessage({ topic: "list", files });
         break;
       }
       case "remove": {
