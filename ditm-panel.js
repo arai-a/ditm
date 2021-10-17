@@ -10,6 +10,12 @@ const files_promise = new Promise(resolve => {
 const source_text_box = document.getElementById("source-text-box");
 const source_url_box = document.getElementById("source-url-box");
 const source_replicate_box = document.getElementById("source-replicate-box");
+const source_log_box = document.getElementById("source-log-box");
+
+const log_box = document.getElementById("log-box");
+const log_clear = document.getElementById("log-clear");
+
+log_clear.addEventListener("click", clear_log);
 
 const source_text = document.getElementById("source-text");
 source_text.placeholder = `1. Select URL from "Used" list
@@ -57,39 +63,54 @@ const replicate_status = document.getElementById("status-replicate");
 const source_tabs_text_tab = document.getElementById("source-tabs-text-tab");
 const source_tabs_url_tab = document.getElementById("source-tabs-url-tab");
 const source_tabs_replicate_tab = document.getElementById("source-tabs-replicate-tab");
+const source_tabs_log_tab = document.getElementById("source-tabs-log-tab");
 
 function show(type) {
-  if (type === "text") {
-    source_text_box.style.display = "";
-    source_url_box.style.display = "none";
-    source_replicate_box.style.display = "none";
-
-    pretty_button.disabled = false;
-
-    source_tabs_text_tab.classList.add("active");
-    source_tabs_url_tab.classList.remove("active");
-    source_tabs_replicate_tab.classList.remove("active");
-  } else if (type === "url") {
-    source_text_box.style.display = "none";
-    source_url_box.style.display = "";
-    source_replicate_box.style.display = "none";
-
-    pretty_button.disabled = true;
-
-    source_tabs_text_tab.classList.remove("active");
-    source_tabs_url_tab.classList.add("active");
-    source_tabs_replicate_tab.classList.remove("active");
-  } else {
-    source_text_box.style.display = "none";
-    source_url_box.style.display = "none";
-    source_replicate_box.style.display = "";
-
-    pretty_button.disabled = true;
-
-    source_tabs_text_tab.classList.remove("active");
-    source_tabs_url_tab.classList.remove("active");
-    source_tabs_replicate_tab.classList.add("active");
+  function show_box(box, t) {
+    box.style.display = type === t ? "" : "none";
   }
+  function activate_tab(tab, t) {
+    if (type === t) {
+      tab.classList.add("active");
+    } else {
+      tab.classList.remove("active");
+    }
+  }
+
+  show_box(source_text_box, "text");
+  show_box(source_url_box, "url");
+  show_box(source_replicate_box, "replicate");
+  show_box(source_log_box, "log");
+
+  pretty_button.disabled = type === "text";
+
+  activate_tab(source_tabs_text_tab, "text");
+  activate_tab(source_tabs_url_tab, "url");
+  activate_tab(source_tabs_replicate_tab, "replicate");
+  activate_tab(source_tabs_log_tab, "log");
+
+  startLogIfNecessary(type === "log");
+}
+
+let log_timer = null;
+function startLogIfNecessary(isLog) {
+  if (log_timer) {
+    clearInterval(log_timer);
+    log_timer = null;
+  }
+
+  if (!isLog) {
+    return;
+  }
+
+  pingLog();
+  log_timer = setInterval(pingLog, 5000);
+}
+
+function pingLog() {
+  browser.runtime.sendMessage({
+    topic: "ping-log",
+  });
 }
 
 source_tabs_text_tab.addEventListener("click", () => {
@@ -100,6 +121,9 @@ source_tabs_url_tab.addEventListener("click", () => {
 });
 source_tabs_replicate_tab.addEventListener("click", () => {
   show("replicate");
+});
+source_tabs_log_tab.addEventListener("click", () => {
+  show("log");
 });
 
 const STATUS_TIMEOUT = 10 * 1000;
@@ -363,6 +387,10 @@ function fill_source(file) {
   }
 }
 
+function isReplicate() {
+  return source_tabs_replicate_tab.classList.contains("active");
+}
+
 async function fillStoredList() {
   let defaultText;
   if (Object.keys(files).length > 0) {
@@ -372,7 +400,7 @@ async function fillStoredList() {
   }
   initList(stored_urls, defaultText);
 
-  const isReplicate = source_tabs_replicate_tab.classList.contains("active");
+  const skipForReplicate = isReplicate();
 
   for (const url of Object.keys(files).sort()) {
     const file = files[url];
@@ -388,7 +416,7 @@ async function fillStoredList() {
     option.textContent = label;
     stored_urls.appendChild(option);
 
-    if (isReplicate) {
+    if (skipForReplicate) {
       continue;
     }
 
@@ -657,6 +685,60 @@ function stop_replicate() {
   });
 }
 
+function add_log(message) {
+  const item = document.createElement("div");
+  item.className = "log-item";
+
+  const icon_box = document.createElement("div");
+
+  const icon = document.createElement("span");
+  if (message.type === "text") {
+    icon.className = "log-item-icon-text";
+    icon.textContent = "TEXT";
+  } else {
+    icon.className = "log-item-icon-url";
+    icon.textContent = "URL";
+  }
+  icon_box.appendChild(icon);
+  item.appendChild(icon_box);
+
+  const body = document.createElement("div");
+  body.className = "log-item-body";
+
+
+  const url_box = document.createElement("div");
+  const url = document.createElement("span");
+  url.className = "log-item-url";
+  url.textContent = message.url;
+  url_box.appendChild(url);
+  body.appendChild(url_box);
+
+  if (message.type === "url") {
+    const redirect_box = document.createElement("div");
+    redirect_box.appendChild(document.createTextNode("=> "));
+    const url = document.createElement("span");
+    url.className = "log-item-url";
+    url.textContent = message.redirect;
+    redirect_box.appendChild(url);
+    body.appendChild(redirect_box);
+  }
+
+  const info_box = document.createElement("div");
+  const size = document.createElement("span");
+  size.textContent = `Sent ${message.size} bytes`;
+  info_box.appendChild(size);
+  body.appendChild(info_box);
+
+  item.appendChild(body);
+  log_box.appendChild(item);
+
+  item.scrollIntoView();
+}
+
+function clear_log() {
+  log_box.textContent = "";
+}
+
 let initialList = true;
 browser.runtime.onMessage.addListener(async message => {
   switch (message.topic) {
@@ -669,7 +751,7 @@ fetch(${urlString});
       break;
     }
     case "load": {
-      if (source_tabs_replicate_tab.classList.contains("active")) {
+      if (isReplicate()) {
         const url = message.url;
         const content = message.content;
         if (replicate_promise_map.has(url)) {
@@ -706,6 +788,10 @@ fetch(${urlString});
     case "url-history": {
       url_history = message.history;
       filLDataList(source_url_history, url_history);
+      break;
+    }
+    case "log-item": {
+      add_log(message);
       break;
     }
   }

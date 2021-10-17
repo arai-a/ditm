@@ -47,6 +47,9 @@
         <div id="source-tabs-replicate-tab" class="source-tab" title="Replicate all">
           <div class="filename">Replicate</div>
         </div>
+        <div id="source-tabs-log-tab" class="source-tab" title="Log">
+          <div class="filename">Log</div>
+        </div>
       </div>
     </div>
     <div id="source-text-box">
@@ -125,6 +128,13 @@ $ python3 ditm-replicate.py && cd ditm-replica && python3 -m http.server {PORT}<
       <label class="inline" for="source-replicate-server">Run server automatically</label>
       <label class="inline" for="source-replicate-port">using port</label>
       <input id="source-replicate-port" class="devtools-textinput" type="text" value="8000" size="6">
+    </div>
+    <div id="source-log-box" style="display: none">
+      <div id="log-toolbar">
+        <button id="log-clear" class="devtools-button" title="Clear log"></button>
+      </div>
+      <div id="log-box">
+      </div>
     </div>
     <script src="ditm-panel.js"></script>
   </body>

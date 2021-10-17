@@ -3,6 +3,9 @@ let url_history;
 let loadingURL = null;
 let retrying = false;
 let patternCache = {};
+let lastLogPing = 0;
+let isLogging = false;
+const PING_TTL = 10 * 1000;
 
 function toPattern(url) {
   if (url in patternCache) {
@@ -41,6 +44,19 @@ function findFile(targetURL) {
   return null;
 }
 
+function sendLog(type, url, redirect, size) {
+  browser.runtime.sendMessage({
+    topic: "log-item",
+    url,
+    type,
+    size,
+    redirect,
+  });
+  if (Date.now() > lastLogPing + PING_TTL) {
+    isLogging = false;
+  }
+}
+
 async function filterRequest(details) {
   const url = details.url;
 
@@ -75,16 +91,28 @@ async function filterRequest(details) {
     // Modify the response.
     filter.onstop = event => {
       if (file.type === "text") {
-        filter.write(encoder.encode(file.content));
+        const data = encoder.encode(file.content);
+        const size = data.length;
+        filter.write(data);
         filter.disconnect();
+
+        if (isLogging) {
+          sendLog(file.type, url, "", size);
+        }
       } else {
         return (async () => {
           const response = await fetch(file.content, { cache: "reload" });
           const data = await response.arrayBuffer();
+          const size = data.byteLength;
           filter.write(data);
           filter.disconnect();
+
+          if (isLogging) {
+            sendLog(file.type, url, file.content, size);
+          }
         })();
       }
+
       return undefined;
     };
 
@@ -323,6 +351,11 @@ async function run() {
         url_history = [];
         await save();
         browser.runtime.sendMessage({ topic: "url-history", history: url_history });
+        break;
+      }
+      case "ping-log": {
+        lastLogPing = Date.now();
+        isLogging = true;
         break;
       }
     }

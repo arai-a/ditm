@@ -1,5 +1,9 @@
 /* ---- */
 
+html {
+  overflow: hidden;
+}
+
 body {
     height: 100%;
     display: flex;
@@ -163,4 +167,53 @@ pre {
   margin: 4px;
   border: 1px solid var(--theme-toolbar-separator);
   padding: 4px;
+}
+
+#source-log-box {
+    flex: auto;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    overflow: hidden;
+}
+
+.theme-light #log-clear::before {
+    background-image: url("./images/clear-light.svg");
+}
+.theme-dark #log-clear::before {
+    background-image: url("./images/clear-dark.svg");
+}
+
+#log-box {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.log-item {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid var(--theme-toolbar-separator);
+    font-family: var(--monospace-font-family);
+    font-size: var(--theme-code-font-size);
+}
+
+.log-item-icon-text,
+.log-item-icon-url {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin: 0px 4px;
+    min-width: 4em;
+    text-align: center;
+}
+
+.log-item-icon-text {
+    color: #0a70d0;
+    border: 1px solid #0a70d0;
+}
+
+.log-item-icon-url {
+    color: #ffc000;
+    border: 1px solid #ffc000;
 }
