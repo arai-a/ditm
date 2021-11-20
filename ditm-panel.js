@@ -88,24 +88,10 @@ function show(type) {
   activate_tab(source_tabs_url_tab, "url");
   activate_tab(source_tabs_replicate_tab, "replicate");
   activate_tab(source_tabs_log_tab, "log");
-
-  startLogIfNecessary(type === "log");
 }
 
-let log_timer = null;
-function startLogIfNecessary(isLog) {
-  if (log_timer) {
-    clearInterval(log_timer);
-    log_timer = null;
-  }
-
-  if (!isLog) {
-    return;
-  }
-
-  pingLog();
-  log_timer = setInterval(pingLog, 5000);
-}
+pingLog();
+setInterval(pingLog, 5000);
 
 function pingLog() {
   browser.runtime.sendMessage({

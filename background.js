@@ -45,6 +45,10 @@ function findFile(targetURL) {
 }
 
 function sendLog(type, url, redirect, size, replicate) {
+  if (!isLogging) {
+    return;
+  }
+
   browser.runtime.sendMessage({
     topic: "log-item",
     url,
@@ -97,9 +101,7 @@ async function filterRequest(details) {
         filter.write(data);
         filter.disconnect();
 
-        if (isLogging) {
-          sendLog(file.type, url, "", size, false);
-        }
+        sendLog(file.type, url, "", size, false);
       } else {
         return (async () => {
           const response = await fetch(file.content, { cache: "reload" });
@@ -108,9 +110,7 @@ async function filterRequest(details) {
           filter.write(data);
           filter.disconnect();
 
-          if (isLogging) {
-            sendLog(file.type, url, file.content, size, !!file.replicate);
-          }
+          sendLog(file.type, url, file.content, size, !!file.replicate);
         })();
       }
 
