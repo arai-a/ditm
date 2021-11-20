@@ -335,7 +335,9 @@ async function refresh() {
     return;
   }
 
-  fillUsedList(urls);
+  const valid_urls = urls.filter(url => url.startsWith("http"));
+
+  fillUsedList(valid_urls);
 }
 
 function initList(list, defaultText) {
