@@ -126,6 +126,11 @@ input[type="text"] {
     background-image: url("./images/check-dark.svg");
 }
 
+#source-url-box,
+#source-replicate-box {
+    overflow: auto;
+}
+
 #source-url-box p {
   margin: 4px;
   padding: 0;
