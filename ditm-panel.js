@@ -7,6 +7,10 @@ const files_promise = new Promise(resolve => {
   files_resolve = resolve;
 });
 
+let replicate_page_url = null;
+let replicate_list = null;
+let replicate_script = null;
+
 const source_text_box = document.getElementById("source-text-box");
 const source_url_box = document.getElementById("source-url-box");
 const source_replicate_box = document.getElementById("source-replicate-box");
@@ -255,7 +259,7 @@ async function select_stored() {
     url_field.value = url;
     const file = files[stored_urls.value];
     match_field.value = file.match;
-    fill_source(file);
+    fill_source(url, file);
     remove_button.disabled = false;
   } catch (e) {
     console.log(e.toString());
@@ -363,7 +367,7 @@ function filLDataList(list, items) {
   }
 }
 
-function fill_source(file) {
+function fill_source(url, file) {
   switch (file.type) {
     case "text":
       source_text.value = file.content;
@@ -378,6 +382,10 @@ function fill_source(file) {
     case "replicate":
       source_text.value = "";
       source_url.value = "";
+      replicate_page_url = url;
+      replicate_list = file.content;
+      replicate_start.disabled = true;
+      replicate_stop.disabled = false;
       show("replicate");
       break;
   }
@@ -396,14 +404,10 @@ async function fillStoredList() {
   }
   initList(stored_urls, defaultText);
 
-  const skipForReplicate = isReplicate();
+  const isReplicate_ = isReplicate();
 
   for (const url of Object.keys(files).sort()) {
     const file = files[url];
-
-    if (file.page && file.page !== url) {
-      continue;
-    }
 
     const option = document.createElement("option");
     option.value = url;
@@ -412,15 +416,19 @@ async function fillStoredList() {
       label += "  (forward match)";
     } else if (file.match === "wildcard") {
       label += "  (wildcard)";
-    } else if (file.page) {
-      let count = Object.values(files).filter(f => f.page === file.page).length;
-      label += `  (replicate with ${count} files)`;
+    } else if (file.type === "replicate") {
+      label += `  (replicate with ${file.content.length} files)`;
     }
     option.textContent = label;
 
     stored_urls.appendChild(option);
 
-    if (skipForReplicate) {
+    if (isReplicate_) {
+      if (url === replicate_page_url) {
+        stored_urls.value = url;
+        remove_button.disabled = false;
+        fill_source(url, file);
+      }
       continue;
     }
 
@@ -431,7 +439,7 @@ async function fillStoredList() {
       url_field.value = url;
       const file = files[url];
       match_field.value = file.match;
-      fill_source(file);
+      fill_source(url, file);
     }
     if (url_field.value === url) {
       stored_urls.value = url;
@@ -501,10 +509,6 @@ function get_filename(url, files) {
     i++;
   }
 }
-
-let replicate_page_url = null;
-let replicate_list = null;
-let replicate_script = null;
 
 async function download_script() {
   const urls = [];
@@ -681,9 +685,6 @@ print('$ cd {} && python3 -m http.server {}'.format(dir, port))
 }
 
 function start_replicate() {
-  replicate_start.disabled = true;
-  replicate_stop.disabled = false;
-
   browser.runtime.sendMessage({
     topic: "replicate-start",
     page: replicate_page_url,

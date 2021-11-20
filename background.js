@@ -1,9 +1,45 @@
 let files;
+
+let flatten_files_exact;
+let flatten_files_forward;
+let flatten_files_wildcard;
+
 let url_history;
 let patternCache = {};
 let lastLogPing = 0;
 let isLogging = false;
 const PING_TTL = 10 * 1000;
+
+function update_flatten_files() {
+  flatten_files_exact = {};
+  flatten_files_forward = {};
+  flatten_files_wildcard = {};
+
+  for (const url in files) {
+    const file = files[url];
+    if (file.type === "replicate") {
+      for (let [url, local_url] of file.content) {
+        flatten_files_exact[url] = {
+          match: "exact",
+          type: "url",
+          content: local_url,
+        };
+      }
+    } else {
+      switch (file.match) {
+        case "exact":
+          flatten_files_exact[url] = file;
+          break;
+        case "forward":
+          flatten_files_forward[url] = file;
+          break;
+        case "wildcard":
+          flatten_files_wildcard[url] = file;
+          break;
+      }
+    }
+  }
+}
 
 function toPattern(url) {
   if (url in patternCache) {
@@ -18,24 +54,25 @@ function toPattern(url) {
 }
 
 function findFile(targetURL) {
-  if (targetURL in files) {
-    const file = files[targetURL];
+  if (targetURL in flatten_files_exact) {
+    const file = flatten_files_exact[targetURL];
     if (file.match === "exact") {
       return file;
     }
   }
 
-  for (const url in files) {
-    const file = files[url];
-    if (file.match === "forward") {
-      if (targetURL.startsWith(url)) {
-        return file;
-      }
-    } else if (file.match === "wildcard") {
-      const pattern = toPattern(url);
-      if (pattern.test(targetURL)) {
-        return file;
-      }
+  for (const url in flatten_files_forward) {
+    const file = flatten_files_forward[url];
+    if (targetURL.startsWith(url)) {
+      return file;
+    }
+  }
+
+  for (const url in flatten_files_wildcard) {
+    const file = flatten_files_wildcard[url];
+    const pattern = toPattern(url);
+    if (pattern.test(targetURL)) {
+      return file;
     }
   }
 
@@ -128,13 +165,14 @@ async function refresh() {
   }
 
   const urls = [];
-  for (const url in files) {
-    const file = files[url];
-    if (file.match === "exact" || file.match === "wildcard") {
-      urls.push(url);
-    } else if (file.match === "forward") {
-      urls.push(url + "*");
-    }
+  for (const url in flatten_files_exact) {
+    urls.push(url);
+  }
+  for (const url in flatten_files_forward) {
+    urls.push(url + "*");
+  }
+  for (const url in flatten_files_wildcard) {
+    urls.push(url);
   }
   if (urls.length === 0) {
     return;
@@ -170,9 +208,9 @@ async function load() {
       return {};
     }
     const files = {};
-    for (const url of Object.keys(raw_files)) {
+    url_loop: for (const url of Object.keys(raw_files)) {
       if (!isValidURL(url)) {
-        continue;
+        continue url_loop;
       }
 
       const file = raw_files[url];
@@ -181,34 +219,52 @@ async function load() {
           match: "exact",
           type: "text",
           content: file,
-          page: "",
         };
       } else if (typeof file === "object") {
-        let match;
         switch (file.match) {
           case "exact":
           case "forward":
           case "wildcard":
-            match = file.match;
             break;
           default:
-            match = "exact";
-            break;
+            continue url_loop;
         }
-        const type =
-              file.type === "url" ? "url" :
-              file.type === "replicate" ? "replicate" :
-              "text";
-        const content = (typeof file.content === "string") ? file.content : "";
-        const page = (typeof file.page === "string") ? file.page : "";
+        switch (file.type) {
+          case "text":
+          case "url":
+            if (typeof file.content !== "string") {
+              continue url_loop;
+            }
+            break;
+          case "replicate":
+            if (!Array.isArray(file.content)) {
+              continue url_loop;
+            }
+            for (const item of file.content) {
+              if (!Array.isArray(item)) {
+                continue url_loop;
+              }
+              if (item.length !== 2) {
+                continue url_loop;
+              }
+              if (typeof item[0] !== "string") {
+                continue url_loop;
+              }
+              if (typeof item[1] !== "string") {
+                continue url_loop;
+              }
+            }
+            break;
+          default:
+            continue url_loop;
+        }
         files[url] = {
-          match,
-          type,
-          content,
-          page,
+          match: file.match,
+          type: file.type,
+          content: file.content,
         };
       } else {
-        return {};
+        continue url_loop;
       }
     }
     return files;
@@ -233,21 +289,9 @@ async function save() {
   await browser.storage.local.set({ files, url_history });
 }
 
-function delete_replicate(page) {
-  const del_url = [];
-  for (const url in files) {
-    const file = files[url];
-    if (file.page === page) {
-      del_url.push(url);
-    }
-  }
-  for (const url of del_url) {
-    delete files[url];
-  }
-}
-
 async function run() {
   files = await load();
+  update_flatten_files();
   url_history = await load_url_history();
 
   browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
@@ -274,8 +318,8 @@ async function run() {
             match: message.match,
             type: message.type,
             content: message.content,
-            page: "",
           };
+          update_flatten_files();
           if (message.type === "url") {
             if (!url_history.includes(message.content)) {
               url_history.unshift(message.content);
@@ -298,35 +342,28 @@ async function run() {
         break;
       }
       case "replicate-start": {
-        for (const [url, local_url] of message.list) {
-          files[url] = {
-            match: "exact",
-            type: "replicate",
-            content: local_url,
-            page: message.page,
-          };
-        }
+        files[message.page] = {
+          match: "exact",
+          type: "replicate",
+          content: message.list,
+        };
+        update_flatten_files();
         await save();
         await refresh();
         browser.runtime.sendMessage({ topic: "list", files });
         break;
       }
       case "replicate-stop": {
-        delete_replicate(message.page);
+        delete files[message.page];
+        update_flatten_files();
         await save();
         await refresh();
         browser.runtime.sendMessage({ topic: "list", files });
         break;
       }
       case "remove": {
-        if (message.url in files) {
-          const file = files[message.url];
-          if (file.page) {
-            delete_replicate(file.page);
-          }
-        }
-
         delete files[message.url];
+        update_flatten_files();
         patternCache = {};
         await save();
         await refresh();
