@@ -1,7 +1,6 @@
 let files;
 let url_history;
 let loadingURL = null;
-let retrying = false;
 let patternCache = {};
 let lastLogPing = 0;
 let isLogging = false;
@@ -77,14 +76,9 @@ async function filterRequest(details) {
       content += str;
     };
     filter.onstop = event => {
-      if (content || retrying) {
-        loadingURL = null;
-        browser.runtime.sendMessage({ topic: "load", content, url });
-        refresh();
-      } else {
-        // Fallback to fetching from eval in the tab, and keep listening.
-        retrying = true;
-      }
+      loadingURL = null;
+      browser.runtime.sendMessage({ topic: "load", content, url });
+      refresh();
       filter.disconnect();
     };
     return;
@@ -270,16 +264,17 @@ async function run() {
     switch (message.topic) {
       case "load": {
         const url = message.url;
-        loadingURL = url;
-        retrying = false;
-        await refresh();
 
         try {
           // First try to fetch from background script.
-          await fetch(url);
+          const response = await fetch(url);
+          const content = await response.text();
+          browser.runtime.sendMessage({ topic: "load", content, url });
         } catch (e) {
           // fetch in background script may fail because of tracking protection.
           // Fallback to fetching from eval in the tab.
+          loadingURL = url;
+          await refresh();
           browser.runtime.sendMessage({ topic: "setLoadingURL:done", url });
         }
         break;
