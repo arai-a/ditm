@@ -401,6 +401,10 @@ async function fillStoredList() {
   for (const url of Object.keys(files).sort()) {
     const file = files[url];
 
+    if (file.page && file.page !== url) {
+      continue;
+    }
+
     const option = document.createElement("option");
     option.value = url;
     let label = url;
@@ -408,8 +412,12 @@ async function fillStoredList() {
       label += "  (forward match)";
     } else if (file.match === "wildcard") {
       label += "  (wildcard)";
+    } else if (file.page) {
+      let count = Object.values(files).filter(f => f.page === file.page).length;
+      label += `  (replicate with ${count} files)`;
     }
     option.textContent = label;
+
     stored_urls.appendChild(option);
 
     if (skipForReplicate) {
@@ -494,6 +502,7 @@ function get_filename(url, files) {
   }
 }
 
+let replicate_page_url = null;
 let replicate_list = null;
 let replicate_script = null;
 
@@ -547,13 +556,15 @@ async function download_script() {
     replicate_progress.value = Math.round(100 * files.size / urls.length);
   }
 
-  const page_url = await browser.devtools.inspectedWindow.eval(`
+  const [page_url, error] = await browser.devtools.inspectedWindow.eval(`
 document.location.href;
 `);
 
+  replicate_page_url = page_url;
+
   let README = `\
 This directory contains replica of
-${page_url}
+${replicate_page_url}
 
 Files map to the following URLs:
 `;
@@ -675,6 +686,7 @@ function start_replicate() {
 
   browser.runtime.sendMessage({
     topic: "replicate-start",
+    page: replicate_page_url,
     list: replicate_list,
   });
 }
@@ -685,7 +697,7 @@ function stop_replicate() {
 
   browser.runtime.sendMessage({
     topic: "replicate-stop",
-    list: replicate_list,
+    page: replicate_page_url,
   });
 }
 

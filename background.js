@@ -181,6 +181,7 @@ async function load() {
           match: "exact",
           type: "text",
           content: file,
+          page: "",
         };
       } else if (typeof file === "object") {
         let match;
@@ -199,10 +200,12 @@ async function load() {
               file.type === "replicate" ? "replicate" :
               "text";
         const content = (typeof file.content === "string") ? file.content : "";
+        const page = (typeof file.page === "string") ? file.page : "";
         files[url] = {
           match,
           type,
           content,
+          page,
         };
       } else {
         return {};
@@ -228,6 +231,19 @@ async function load_url_history() {
 
 async function save() {
   await browser.storage.local.set({ files, url_history });
+}
+
+function delete_replicate(page) {
+  const del_url = [];
+  for (const url in files) {
+    const file = files[url];
+    if (file.page === page) {
+      del_url.push(url);
+    }
+  }
+  for (const url of del_url) {
+    delete files[url];
+  }
 }
 
 async function run() {
@@ -258,6 +274,7 @@ async function run() {
             match: message.match,
             type: message.type,
             content: message.content,
+            page: "",
           };
           if (message.type === "url") {
             if (!url_history.includes(message.content)) {
@@ -286,6 +303,7 @@ async function run() {
             match: "exact",
             type: "replicate",
             content: local_url,
+            page: message.page,
           };
         }
         await save();
@@ -294,15 +312,20 @@ async function run() {
         break;
       }
       case "replicate-stop": {
-        for (const [url, local_url] of message.list) {
-          delete files[url];
-        }
+        delete_replicate(message.page);
         await save();
         await refresh();
         browser.runtime.sendMessage({ topic: "list", files });
         break;
       }
       case "remove": {
+        if (message.url in files) {
+          const file = files[message.url];
+          if (file.page) {
+            delete_replicate(file.page);
+          }
+        }
+
         delete files[message.url];
         patternCache = {};
         await save();
