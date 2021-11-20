@@ -693,11 +693,16 @@ function add_log(message) {
 
   const icon = document.createElement("span");
   if (message.type === "text") {
-    icon.className = "log-item-icon-text";
+    icon.className = "log-item-icon log-item-icon-text";
     icon.textContent = "TEXT";
   } else {
-    icon.className = "log-item-icon-url";
-    icon.textContent = "URL";
+    if (message.replicate) {
+      icon.className = "log-item-icon log-item-icon-replicate";
+      icon.textContent = "REPLICATE";
+    } else {
+      icon.className = "log-item-icon log-item-icon-url";
+      icon.textContent = "URL";
+    }
   }
   icon_box.appendChild(icon);
   item.appendChild(icon_box);

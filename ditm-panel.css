@@ -198,22 +198,26 @@ pre {
     font-size: var(--theme-code-font-size);
 }
 
-.log-item-icon-text,
-.log-item-icon-url {
+.log-item-icon {
     display: inline-block;
     border-radius: 4px;
     padding: 2px 4px;
     margin: 0px 4px;
-    min-width: 4em;
+    min-width: 8em;
     text-align: center;
 }
 
 .log-item-icon-text {
-    color: #0a70d0;
-    border: 1px solid #0a70d0;
+    color: var(--theme-highlight-blue);
+    border: 1px solid var(--theme-highlight-blue);
 }
 
 .log-item-icon-url {
-    color: #ffc000;
-    border: 1px solid #ffc000;
+    color: var(--theme-highlight-orange);
+    border: 1px solid var(--theme-highlight-orange);
+}
+
+.log-item-icon-replicate {
+    color: var(--theme-highlight-pink);
+    border: 1px solid var(--theme-highlight-pink);
 }

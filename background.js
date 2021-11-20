@@ -44,13 +44,14 @@ function findFile(targetURL) {
   return null;
 }
 
-function sendLog(type, url, redirect, size) {
+function sendLog(type, url, redirect, size, replicate) {
   browser.runtime.sendMessage({
     topic: "log-item",
     url,
     type,
     size,
     redirect,
+    replicate,
   });
   if (Date.now() > lastLogPing + PING_TTL) {
     isLogging = false;
@@ -97,7 +98,7 @@ async function filterRequest(details) {
         filter.disconnect();
 
         if (isLogging) {
-          sendLog(file.type, url, "", size);
+          sendLog(file.type, url, "", size, false);
         }
       } else {
         return (async () => {
@@ -108,7 +109,7 @@ async function filterRequest(details) {
           filter.disconnect();
 
           if (isLogging) {
-            sendLog(file.type, url, file.content, size);
+            sendLog(file.type, url, file.content, size, !!file.replicate);
           }
         })();
       }
@@ -224,10 +225,12 @@ async function load() {
         }
         const type = file.type === "url" ? "url" : "text";
         const content = (typeof file.content === "string") ? file.content : "";
+        const replicate = !!file.replicate;
         files[url] = {
           match,
           type,
           content,
+          replicate,
         };
       } else {
         return {};
@@ -287,6 +290,7 @@ async function run() {
             match: message.match,
             type: message.type,
             content: message.content,
+            replicate: message.replicate,
           };
           if (message.type === "url") {
             if (!url_history.includes(message.content)) {
@@ -314,6 +318,7 @@ async function run() {
           files[url] = {
             match: "exact",
             type: "url",
+            replicate: true,
             content: local_url,
           };
         }
