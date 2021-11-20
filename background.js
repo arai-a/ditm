@@ -1,6 +1,5 @@
 let files;
 let url_history;
-let loadingURL = null;
 let patternCache = {};
 let lastLogPing = 0;
 let isLogging = false;
@@ -65,24 +64,6 @@ async function filterRequest(details) {
 
   const filter = browser.webRequest.filterResponseData(details.requestId);
   const encoder = new TextEncoder();
-
-  if (loadingURL === url) {
-    // If we are loading the URL, get the response and pass it back to panel.
-    let content = "";
-    const decoder = new TextDecoder("utf-8");
-    filter.ondata = event => {
-      const str = decoder.decode(event.data, {stream: true});
-      filter.write(encoder.encode(str));
-      content += str;
-    };
-    filter.onstop = event => {
-      loadingURL = null;
-      browser.runtime.sendMessage({ topic: "load", content, url });
-      refresh();
-      filter.disconnect();
-    };
-    return;
-  }
 
   const file = findFile(url);
   if (file) {
@@ -154,9 +135,6 @@ async function refresh() {
     } else if (file.match === "forward") {
       urls.push(url + "*");
     }
-  }
-  if (loadingURL) {
-    urls.push(loadingURL);
   }
   if (urls.length === 0) {
     return;
@@ -266,16 +244,11 @@ async function run() {
         const url = message.url;
 
         try {
-          // First try to fetch from background script.
           const response = await fetch(url);
           const content = await response.text();
           browser.runtime.sendMessage({ topic: "load", content, url });
         } catch (e) {
-          // fetch in background script may fail because of tracking protection.
-          // Fallback to fetching from eval in the tab.
-          loadingURL = url;
-          await refresh();
-          browser.runtime.sendMessage({ topic: "setLoadingURL:done", url });
+          browser.runtime.sendMessage({ topic: "load:failed", url });
         }
         break;
       }

@@ -518,8 +518,8 @@ async function download_script() {
   replicate_list = [];
 
   for (const url of urls) {
-    const content = await new Promise(resolve => {
-      replicate_promise_map.set(url, resolve);
+    const contentPromise = new Promise((resolve, reject) => {
+      replicate_promise_map.set(url, [resolve, reject]);
 
       replicate_status.textContent = `Loading ${url}`;
 
@@ -528,6 +528,14 @@ async function download_script() {
         url,
       });
     });
+
+    let content;
+
+    try {
+      content = await contentPromise;
+    } catch (e) {
+      continue;
+    }
 
     let filename = get_filename(url, files);
 
@@ -745,20 +753,12 @@ function clear_log() {
 let initialList = true;
 browser.runtime.onMessage.addListener(async message => {
   switch (message.topic) {
-    case "setLoadingURL:done": {
-      const url = message.url;
-      const urlString = `"${url.replace(/[\"\\]/g, "\\$1")}"`;
-      await browser.devtools.inspectedWindow.eval(`
-fetch(${urlString});
-`);
-      break;
-    }
     case "load": {
       if (isReplicate()) {
         const url = message.url;
         const content = message.content;
         if (replicate_promise_map.has(url)) {
-          const resolve = replicate_promise_map.get(url);
+          const [resolve, reject] = replicate_promise_map.get(url);
           replicate_promise_map.delete(url);
           resolve(content);
         }
@@ -766,6 +766,19 @@ fetch(${urlString});
         status("Loaded content.");
         source_text.value = message.content;
         source_url.value = "";
+      }
+      break;
+    }
+    case "load:failed": {
+      if (isReplicate()) {
+        const url = message.url;
+        if (replicate_promise_map.has(url)) {
+          const [resolve, reject] = replicate_promise_map.get(url);
+          replicate_promise_map.delete(url);
+          reject();
+        }
+      } else {
+        status("Loaded failed.");
       }
       break;
     }
