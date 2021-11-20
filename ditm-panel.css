@@ -190,6 +190,10 @@ pre {
     overflow-y: auto;
 }
 
+#log-toolbar {
+    border-bottom: 1px solid var(--theme-toolbar-separator);
+}
+
 .log-item {
     display: flex;
     flex-direction: row;
