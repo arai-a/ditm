@@ -362,14 +362,22 @@ function filLDataList(list, items) {
 }
 
 function fill_source(file) {
-  if (file.type === "text") {
-    source_text.value = file.content;
-    source_url.value = "";
-    show("text");
-  } else {
-    source_text.value = "";
-    source_url.value = file.content;
-    show("url");
+  switch (file.type) {
+    case "text":
+      source_text.value = file.content;
+      source_url.value = "";
+      show("text");
+      break;
+    case "url":
+      source_text.value = "";
+      source_url.value = file.content;
+      show("url");
+      break;
+    case "replicate":
+      source_text.value = "";
+      source_url.value = "";
+      show("replicate");
+      break;
   }
 }
 
@@ -678,17 +686,19 @@ function add_log(message) {
   const icon_box = document.createElement("div");
 
   const icon = document.createElement("span");
-  if (message.type === "text") {
-    icon.className = "log-item-icon log-item-icon-text";
-    icon.textContent = "TEXT";
-  } else {
-    if (message.replicate) {
-      icon.className = "log-item-icon log-item-icon-replicate";
-      icon.textContent = "REPLICATE";
-    } else {
+  switch (message.type) {
+    case "text":
+      icon.className = "log-item-icon log-item-icon-text";
+      icon.textContent = "TEXT";
+      break;
+    case "url":
       icon.className = "log-item-icon log-item-icon-url";
       icon.textContent = "URL";
-    }
+      break;
+    case "replicate":
+      icon.className = "log-item-icon log-item-icon-replicate";
+      icon.textContent = "REPLICATE";
+      break;
   }
   icon_box.appendChild(icon);
   item.appendChild(icon_box);
@@ -704,7 +714,7 @@ function add_log(message) {
   url_box.appendChild(url);
   body.appendChild(url_box);
 
-  if (message.type === "url") {
+  if (message.type === "url" || message.type === "replicate") {
     const redirect_box = document.createElement("div");
     redirect_box.appendChild(document.createTextNode("=> "));
     const url = document.createElement("span");
