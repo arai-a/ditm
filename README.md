@@ -61,6 +61,13 @@ Apply "replace the response with local file" for all files used in the page, wit
   1. Run `python3 ditm-replicate.py` to extract the files, and run the local server
   1. Reload the web page
 
+### Show log for replacement
+
+  1. Open the web page
+  1. Open Developer Tools
+  1. Choose "DITM" tab in the Developer Tools
+  1. Select "Log" tab
+
 ## About imported files
 
 The following files are imported from https://hg.mozilla.org/mozilla-central/
