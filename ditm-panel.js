@@ -517,6 +517,8 @@ async function fillStoredList() {
 
   const isReplicate_ = isReplicate();
 
+  let selected = false;
+
   for (const url of Object.keys(files).sort()) {
     const file = files[url];
 
@@ -537,6 +539,7 @@ async function fillStoredList() {
     if (isReplicate_) {
       if (url === replicate_page_url) {
         stored_urls.value = url;
+        selected = true;
         remove_button.disabled = false;
         fill_source(url, file);
       }
@@ -546,6 +549,7 @@ async function fillStoredList() {
     if (needsContent) {
       needsContent = false;
       stored_urls.value = url;
+      selected = true;
       remove_button.disabled = false;
       url_field.value = url;
       const file = files[url];
@@ -554,7 +558,12 @@ async function fillStoredList() {
     }
     if (url_field.value === url) {
       stored_urls.value = url;
+      selected = true;
     }
+  }
+
+  if (!selected) {
+    remove_button.disabled = true;
   }
 }
 
