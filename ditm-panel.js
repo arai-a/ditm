@@ -226,7 +226,11 @@ document.getElementById("save-url").addEventListener("click", save);
 document.getElementById("load-text").addEventListener("click", load);
 
 const remove_button = document.getElementById("remove");
-remove_button.addEventListener("click", remove);
+remove_button.addEventListener("click", () => {
+  remove().catch(e => {
+    console.error(e);
+  });
+});
 remove_button.disabled = true;
 
 const pretty_button = document.getElementById("pretty");
@@ -245,7 +249,7 @@ const replicate_progress = document.getElementById("source-replicate-progress");
 const replicate_download = document.getElementById("source-replicate-download");
 replicate_download.addEventListener("click", () => {
   download_script().catch(e => {
-    replicate_status.textContent = e;
+    console.error(e);
   });
 });
 
@@ -300,20 +304,24 @@ async function save() {
   });
   status(`Saved`);
 }
-async function remove() {
+ async function remove() {
   const url = url_field.value;
   url_field.value = "";
   match_field.value = "exact";
-  show("text");
   source_text.value = "";
   source_url.value = "";
   needsContent = true;
   status(`Removed`);
+  remove_button.disabled = true;
+
+  if (url === replicate_page_url) {
+    stop_replicate();
+  }
+
   browser.runtime.sendMessage({
     topic: "remove",
     url,
   });
-  remove_button.disabled = true;
 }
 async function pretty() {
   const worker = new Worker("pretty-print-worker.js");
