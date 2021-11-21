@@ -117,6 +117,84 @@ source_tabs_log_tab.addEventListener("click", () => {
   log_scroll_to_bottom();
 });
 
+window.addEventListener("dragover", event => {
+  event.preventDefault();
+});
+
+window.addEventListener("drop", function(event) {
+  const dt = event.dataTransfer;
+  if (dt.files.length === 0) {
+    return;
+  }
+
+  const file = dt.files[0];
+  if (file.name !== "ditm-replicate.json") {
+    return;
+  }
+
+  file.text().then(text => {
+    const data = JSON.parse(text);
+    show("replicate");
+    load_replicate(data);
+  });
+});
+
+function load_replicate(data) {
+  if (!validate_replicate(data)) {
+    replicate_status.textContent = `Faled to load ditm-replicate.json`;
+    return;
+  }
+
+  replicate_page_url = data.page;
+  replicate_list = data.list;
+
+  replicate_status.textContent = `Loaded ${data.page} with ${data.list.length} files`;
+
+  start_replicate();
+}
+
+function validate_replicate(data) {
+  if (typeof data !== "object") {
+    return false;
+  }
+
+  if (!("page" in data)) {
+    return false;
+  }
+
+  if (typeof data.page !== "string") {
+    return false;
+  }
+
+  if (!("list" in data)) {
+    return false;
+  }
+
+  if (!Array.isArray(data.list)) {
+    return false;
+  }
+
+  for (const item of data.list) {
+    if (!Array.isArray(item)) {
+      return false;
+    }
+
+    if (item.length !== 2) {
+      return false;
+    }
+
+    if (typeof item[0] !== "string") {
+      return false;
+    }
+
+    if (typeof item[1] !== "string") {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function log_scroll_to_bottom() {
   const items = log_box.getElementsByTagName("div");
   if (items.length === 0) {
@@ -165,7 +243,11 @@ used_urls.addEventListener("change", select_used);
 const replicate_progress = document.getElementById("source-replicate-progress");
 
 const replicate_download = document.getElementById("source-replicate-download");
-replicate_download.addEventListener("click", download_script);
+replicate_download.addEventListener("click", () => {
+  download_script().catch(e => {
+    replicate_status.textContent = e;
+  });
+});
 
 const replicate_start = document.getElementById("source-replicate-start");
 replicate_start.addEventListener("click", start_replicate);
@@ -532,7 +614,10 @@ async function download_script() {
 
   const files = new Map();
 
+  const metafiles = new Set(["README.txt", "ditm-replicate.json"]);
+
   files.set("README.txt", { url: null, content: "" });
+  files.set("ditm-replicate.json", { url: null, content: "" });
 
   replicate_progress.style.display = "";
   replicate_progress.value = 0;
@@ -569,6 +654,8 @@ async function download_script() {
     replicate_progress.value = Math.round(100 * files.size / urls.length);
   }
 
+  replicate_status.textContent = `Loaded ${replicate_list.length} files`;
+
   const [page_url, error] = await browser.devtools.inspectedWindow.eval(`
 document.location.href;
 `);
@@ -583,7 +670,7 @@ Files map to the following URLs:
 `;
 
   for (const [filename, file] of files) {
-    if (filename === "README.txt") {
+    if (metafiles.has(filename)) {
       continue;
     }
 
@@ -592,7 +679,18 @@ Files map to the following URLs:
 `;
   }
 
+  README += `\
+
+The data can be loaded into the another DITM instance by drag-and-dropping
+ditm-replicate.json file into the DITM pane.
+`;
+
   files.get("README.txt").content = README;
+
+  files.get("ditm-replicate.json").content = JSON.stringify({
+    page: page_url,
+    list: replicate_list
+  });
 
   let script = `\
 #!/usr/bin/env python3
@@ -677,7 +775,7 @@ print('$ cd {} && python3 -m http.server {}'.format(dir, port))
 
   replicate_script = script;
 
-  replicate_status.textContent = `Loaded ${files.size} file(s)`;
+  replicate_status.textContent = `Created ditm-replicate.py with ${files.size} files`;
 
   const url = URL.createObjectURL(new Blob([replicate_script]));
   const a = document.createElement("a");

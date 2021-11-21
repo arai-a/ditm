@@ -61,6 +61,13 @@ Apply "replace the response with local file" for all files used in the page, wit
   1. Run `python3 ditm-replicate.py` to extract the files, and run the local server
   1. Reload the web page
 
+### Load previously saved replicate
+
+  1. Run `python3 ditm-replicate.py` to extract the files, and run the local server
+  1. Open Developer Tools
+  1. Choose "DITM" tab in the Developer Tools
+  1. Drag and drop `ditm-replicate/ditm-replicate.json` file into DITM pane
+
 ### Show log for replacement
 
   1. Open the web page
