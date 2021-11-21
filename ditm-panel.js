@@ -7,6 +7,10 @@ const files_promise = new Promise(resolve => {
   files_resolve = resolve;
 });
 
+function log_error(e) {
+  console.error(e);
+}
+
 let replicate_page_url = null;
 let replicate_list = null;
 let replicate_script = null;
@@ -28,9 +32,9 @@ source_text.placeholder = `1. Select URL from "Used" list
 4. Reload the webpage`;
 
 const source_url = document.getElementById("source-url");
-source_url.addEventListener("keypress", async event => {
+source_url.addEventListener("keypress", event => {
   if (event.key === "Enter") {
-    save();
+    save().catch(log_error);
   }
 });
 
@@ -51,7 +55,7 @@ source_url_clear_history.addEventListener("click", async event => {
 const url_field = document.getElementById("url");
 url_field.addEventListener("keypress", async event => {
   if (event.key === "Enter") {
-    load();
+    load().catch(log_error);
   }
 });
 
@@ -220,37 +224,45 @@ function status(text) {
   }, STATUS_TIMEOUT);
 }
 
-document.getElementById("save-text").addEventListener("click", save);
-document.getElementById("save-url").addEventListener("click", save);
+document.getElementById("save-text").addEventListener("click", () => {
+  save().catch(log_error);
+});
+document.getElementById("save-url").addEventListener("click", () => {
+  save().catch(log_error);
+});
 
-document.getElementById("load-text").addEventListener("click", load);
+document.getElementById("load-text").addEventListener("click", () => {
+  load().catch(log_error);
+});
 
 const remove_button = document.getElementById("remove");
 remove_button.addEventListener("click", () => {
-  remove().catch(e => {
-    console.error(e);
-  });
+  remove().catch(log_error);
 });
 remove_button.disabled = true;
 
 const pretty_button = document.getElementById("pretty");
-pretty_button.addEventListener("click", pretty);
+pretty_button.addEventListener("click", () => {
+  pretty().catch(log_error);
+});
 
 document.getElementById("refresh").addEventListener("click", refresh);
 
 const stored_urls = document.getElementById("stored-urls");
-stored_urls.addEventListener("change", select_stored);
+stored_urls.addEventListener("change", () => {
+  select_stored().catch(log_error);
+});
 
 const used_urls = document.getElementById("used-urls");
-used_urls.addEventListener("change", select_used);
+used_urls.addEventListener("change", () => {
+  select_used().catch(log_error);
+});
 
 const replicate_progress = document.getElementById("source-replicate-progress");
 
 const replicate_download = document.getElementById("source-replicate-download");
 replicate_download.addEventListener("click", () => {
-  download_script().catch(e => {
-    console.error(e);
-  });
+  download_script().catch(log_error);
 });
 
 const replicate_start = document.getElementById("source-replicate-start");
