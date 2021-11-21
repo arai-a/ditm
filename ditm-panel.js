@@ -90,7 +90,7 @@ function show(type) {
   show_box(source_replicate_box, "replicate");
   show_box(source_log_box, "log");
 
-  pretty_button.disabled = type === "text";
+  pretty_button.disabled = type !== "text";
 
   activate_tab(source_tabs_text_tab, "text");
   activate_tab(source_tabs_url_tab, "url");
