@@ -114,7 +114,16 @@ source_tabs_replicate_tab.addEventListener("click", () => {
 });
 source_tabs_log_tab.addEventListener("click", () => {
   show("log");
+  log_scroll_to_bottom();
 });
+
+function log_scroll_to_bottom() {
+  const items = log_box.getElementsByTagName("div");
+  if (items.length === 0) {
+    return;
+  }
+  items[items.length - 1].scrollIntoView();
+}
 
 const STATUS_TIMEOUT = 10 * 1000;
 let statusTimer = null;
@@ -755,8 +764,6 @@ function add_log(message) {
 
   item.appendChild(body);
   log_box.appendChild(item);
-
-  item.scrollIntoView();
 }
 
 function clear_log() {
