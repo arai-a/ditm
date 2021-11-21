@@ -862,6 +862,8 @@ function add_log(message) {
 
   item.appendChild(body);
   log_box.appendChild(item);
+
+  log_scroll_to_bottom();
 }
 
 function clear_log() {
