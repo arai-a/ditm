@@ -12,7 +12,7 @@ body {
 
 /* ---- */
 
-#selector-box {
+.selector-box {
     width: calc(100% - 4px - 4px);
     display: grid;
     grid-template-columns: 8em 1fr calc(22px + 4px + 2px);

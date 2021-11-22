@@ -15,7 +15,7 @@ let replicate_page_url = null;
 let replicate_list = null;
 let replicate_script = null;
 
-const selector_box = document.getElementById("selector-box");
+const used_selector_box = document.getElementById("used-selector-box");
 const source_text_box = document.getElementById("source-text-box");
 const source_url_box = document.getElementById("source-url-box");
 const source_replicate_box = document.getElementById("source-replicate-box");
@@ -99,9 +99,9 @@ function show(type) {
   activate_tab(source_tabs_log_tab, "log");
 
   if (type === "text" || type === "url") {
-    selector_box.style.display = "";
+    used_selector_box.style.display = "";
   } else {
-    selector_box.style.display = "none";
+    used_selector_box.style.display = "none";
   }
 }
 

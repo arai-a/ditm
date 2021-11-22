@@ -15,6 +15,13 @@
     <link href="ditm-panel.css" rel="stylesheet" type="text/css">
   </head>
   <body class="theme-body">
+    <div class="selector-box">
+      <label id="stored-urls-label" for="stored-urls">Saved</label>
+      <div id="stored-urls-box">
+        <select id="stored-urls"></select>
+      </div>
+      <button id="remove" class="devtools-button" title="Remove"></button>
+    </div>
     <div class="source-header">
       <div id="source-tabs" class="source-tabs">
         <div id="source-tabs-text-tab" class="source-tab" title="Replace with text">
@@ -31,12 +38,7 @@
         </div>
       </div>
     </div>
-    <div id="selector-box">
-      <label id="stored-urls-label" for="stored-urls">Saved</label>
-      <div id="stored-urls-box">
-        <select id="stored-urls"></select>
-      </div>
-      <button id="remove" class="devtools-button" title="Remove"></button>
+    <div id="used-selector-box" class="selector-box">
       <label id="used-urls-label" for="stored-urls">Used</label>
       <div id="used-urls-box">
         <select id="used-urls"></select>
