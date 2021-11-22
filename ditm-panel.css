@@ -25,8 +25,34 @@ label {
     padding: 2px 20px;
 }
 
-label.inline {
-    padding: 2px 2px;
+fieldset {
+    border: none;
+    margin-inline-start: 15px;
+}
+
+fieldset legend {
+    font-size: 1.4rem;
+    margin-inline-start: -15px;
+    margin-bottom: 3px;
+    cursor: default;
+}
+
+@media screen and (min-width: 1200px) {
+    #source-replicate-box {
+        display: flex;
+        flex-direction: row;
+    }
+    .replicate-main-box {
+        flex: auto;
+    }
+    .replicate-config-box {
+    }
+}
+
+fieldset label {
+    display: block;
+    padding: 4px 0px;
+    width: max-content;
 }
 
 #stored-urls {

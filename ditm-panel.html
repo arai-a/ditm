@@ -99,35 +99,43 @@ $ cd {DIRECTORY_THAT_CONTAINS_THE_FILE}
 $ python3 -m http.server 8000</pre>
     </div>
     <div id="source-replicate-box" style="display: none">
-      <p>
-        Download all used files, and map those URLs to the local server
-      </p>
-      <ol>
-        <li>
-          <button id="source-replicate-download" class="devtools-button" data-standalone="true">Download script and start mapping URLs</button>
-          <progress id="source-replicate-progress" style="display: none" max="100" value="0">0%</progress>
-          <span id="status-replicate"></span>
-        </li>
-        <li>
-          <button id="source-replicate-start" class="devtools-button" data-standalone="true" disabled>Start mapping URLs</button>
-          <button id="source-replicate-stop" class="devtools-button" data-standalone="true" disabled>Stop mapping URLs</button>
-        </li>
-      </ol>
+      <div class="replicate-main-box">
+        <p>
+          Download all used files, and map those URLs to the local server
+        </p>
+        <ol>
+          <li>
+            <button id="source-replicate-download" class="devtools-button" data-standalone="true">Download script and start mapping URLs</button>
+            <progress id="source-replicate-progress" style="display: none" max="100" value="0">0%</progress>
+            <span id="status-replicate"></span>
+          </li>
+          <li>
+            <button id="source-replicate-start" class="devtools-button" data-standalone="true" disabled>Start mapping URLs</button>
+            <button id="source-replicate-stop" class="devtools-button" data-standalone="true" disabled>Stop mapping URLs</button>
+          </li>
+        </ol>
 
-      <p>
-        After downloading <code>ditm-replicate.py</code>, run the following to extract the files and run the local server.
-        All used URLs are mapped to http://localhost:{PORT}/{FILENAME}
-      </p>
-      <pre id="source-replicate-command-server">
-$ python3 ditm-replicate.py</pre>
-      <pre id="source-replicate-command-no-server" style="display: none">
-$ python3 ditm-replicate.py && cd ditm-replica && python3 -m http.server {PORT}</pre>
+        <p>
+          After downloading <code>ditm-replicate.py</code>, run the following to extract the files and run the local server.
+          All used URLs are mapped to http://localhost:{PORT}/{FILENAME}
+        </p>
+        <pre id="source-replicate-command-server">
+          $ python3 ditm-replicate.py</pre>
+        <pre id="source-replicate-command-no-server" style="display: none">
+          $ python3 ditm-replicate.py && cd ditm-replica && python3 -m http.server {PORT}</pre>
+      </div>
+      <fieldset class="replicate-config-box">
+        <legend>Configuration</legend>
 
-      <label class="inline">Configuration:</label>
-      <input type="checkbox" id="source-replicate-server" checked>
-      <label class="inline" for="source-replicate-server">Run server automatically in <code>ditm-replicate.py</code></label>
-      <label class="inline" for="source-replicate-port">using port</label>
-      <input id="source-replicate-port" class="devtools-textinput" type="text" value="8000" size="6">
+        <label for="source-replicate-server">
+          <input type="checkbox" id="source-replicate-server" checked>
+          Run server automatically in <code>ditm-replicate.py</code>
+        </label>
+        <label for="source-replicate-port">
+          Port number
+          <input id="source-replicate-port" class="devtools-textinput" type="text" value="8000" size="6">
+        </label>
+      </fieldset>
     </div>
     <div id="source-log-box" style="display: none">
       <div class="devtools-toolbar">
