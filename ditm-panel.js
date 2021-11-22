@@ -527,6 +527,10 @@ async function fillStoredList() {
       label += "  (forward match)";
     } else if (file.match === "wildcard") {
       label += "  (wildcard)";
+    } else if (file.type === "text") {
+      label += `  (text)`;
+    } else if (file.type === "url") {
+      label += `  (url)`;
     } else if (file.type === "replicate") {
       label += `  (replicate with ${file.content.length} files)`;
     }
