@@ -15,6 +15,7 @@ let replicate_page_url = null;
 let replicate_list = null;
 let replicate_script = null;
 
+const selector_box = document.getElementById("selector-box");
 const source_text_box = document.getElementById("source-text-box");
 const source_url_box = document.getElementById("source-url-box");
 const source_replicate_box = document.getElementById("source-replicate-box");
@@ -96,15 +97,12 @@ function show(type) {
   activate_tab(source_tabs_url_tab, "url");
   activate_tab(source_tabs_replicate_tab, "replicate");
   activate_tab(source_tabs_log_tab, "log");
-}
 
-pingLog();
-setInterval(pingLog, 5000);
-
-function pingLog() {
-  browser.runtime.sendMessage({
-    topic: "ping-log",
-  });
+  if (type === "text" || type === "url") {
+    selector_box.style.display = "";
+  } else {
+    selector_box.style.display = "none";
+  }
 }
 
 source_tabs_text_tab.addEventListener("click", () => {
@@ -974,3 +972,12 @@ browser.runtime.sendMessage({
 browser.runtime.sendMessage({
   topic: "get-url-history",
 });
+
+pingLog();
+setInterval(pingLog, 5000);
+
+function pingLog() {
+  browser.runtime.sendMessage({
+    topic: "ping-log",
+  });
+}
