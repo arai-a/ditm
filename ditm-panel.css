@@ -68,6 +68,14 @@ fieldset label {
     flex: 1;
 }
 
+.theme-light {
+    color-scheme: light;
+}
+
+.theme-dark {
+    color-scheme: dark;
+}
+
 .theme-light #remove::before {
     background-image: url("./images/clear-light.svg");
 }
