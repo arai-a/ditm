@@ -314,7 +314,7 @@ async function save() {
   });
   status(`Saved`);
 }
- async function remove() {
+async function remove() {
   const url = url_field.value;
   url_field.value = "";
   match_field.value = "exact";
@@ -324,7 +324,7 @@ async function save() {
   status(`Removed`);
   remove_button.disabled = true;
 
-  if (url === replicate_page_url) {
+  if (stored_urls.value === replicate_page_url) {
     stop_replicate();
   }
 
