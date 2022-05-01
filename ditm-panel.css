@@ -37,6 +37,11 @@ fieldset legend {
     cursor: default;
 }
 
+.replicate-main-box p {
+  margin: 4px;
+  padding: 0;
+}
+
 @media screen and (min-width: 1200px) {
     #source-replicate-box {
         display: flex;
