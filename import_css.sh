@@ -10,6 +10,7 @@ sed -i .bak -e 's|^@import\(.*\);$||' devtools-common.css
 sed -i .bak -e 's|chrome://devtools/skin/images/|./images/|' devtools-common.css
 sed -i .bak -e 's|chrome://devtools/skin/images/|./images/|' devtools-common.css
 sed -i .bak -e 's|chrome://browser/skin/|./images/|' devtools-common.css
+sed -i .bak -e 's|chrome://global/skin/icons/|./images/|' devtools-common.css
 
 cp ${M_C}/devtools/client/themes/splitters.css devtools-splitters.css
 cp ${M_C}/devtools/client/themes/variables.css devtools-variables.css
@@ -21,6 +22,7 @@ cp ${M_C}/devtools/client/themes/tooltips.css devtools-tooltips.css
 sed -i .bak -e 's|chrome://global/skin/icons/|./images/|' devtools-tooltips.css
 sed -i .bak -e 's|chrome://devtools/skin/images/|./images/|' devtools-tooltips.css
 sed -i .bak -e 's|resource://devtools/client/shared/components/reps/images/|./images/|' devtools-tooltips.css
+sed -i .bak -e 's|chrome://devtools/content/shared/components/reps/images/|./images/|' devtools-tooltips.css
 sed -i .bak -e 's|^@import\(.*\);$||' devtools-tooltips.css
 
 
