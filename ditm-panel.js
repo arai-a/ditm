@@ -758,17 +758,19 @@ files = [
     while (b64.length > 72) {
       const line = b64.slice(0, 72);
       b64_lines += `\
-b'${line}' +
+${line}
 `;
       b64 = b64.slice(72);
     }
     b64_lines += `\
-b'${b64}'
+${b64}
 `;
 
     script += `\
 ['${filename}',
-${b64_lines}],
+b"""
+${b64_lines}
+"""],
 `;
   }
 
