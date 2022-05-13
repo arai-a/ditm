@@ -617,6 +617,10 @@ function get_filename(url, files) {
     }
   }
 
+  if (name.length > 80) {
+    name = name.slice(0, 80);
+  }
+
   const filename = filter_filename(`${name}${ext}`);
   if (!files.has(filename)) {
     return filename;
