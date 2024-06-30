@@ -357,7 +357,7 @@ function prettifyText(text) {
       [
         {
           url: "foo",
-          indent: 2,
+          indent: "  ",
           sourceText: text,
         }
       ]
