@@ -241,7 +241,7 @@ remove_button.disabled = true;
 
 const pretty_button = document.getElementById("pretty");
 pretty_button.addEventListener("click", () => {
-  pretty().catch(log_error);
+  prettifySourceText().catch(log_error);
 });
 
 document.getElementById("refresh").addEventListener("click", refresh);
@@ -271,6 +271,8 @@ replicate_stop.addEventListener("click", stop_replicate);
 
 const replicate_port = document.getElementById("source-replicate-port");
 const replicate_server = document.getElementById("source-replicate-server");
+
+const auto_prettify_js = document.getElementById("auto-prettify-js");
 
 const command_server = document.getElementById("source-replicate-command-server");
 const command_no_server = document.getElementById("source-replicate-command-no-server");
@@ -333,14 +335,20 @@ async function remove() {
     url,
   });
 }
-async function pretty() {
+async function prettifySourceText() {
+  const result = await prettifyText(source_text.value);
+  if (result.error) {
+    status(result.message);
+  } else {
+    source_text.value = result.response.code;
+  }
+}
+function prettifyText(text) {
+  const result = Promise.withResolvers();
+
   const worker = new Worker("pretty-print-worker.js");
   worker.onmessage = msg => {
-    if (msg.data.results[0].error) {
-      status(msg.data.results[0].message);
-    } else {
-      source_text.value = msg.data.results[0].response.code;
-    }
+    result.resolve(msg.data.results[0]);
   };
   worker.postMessage({
     id: 1,
@@ -350,11 +358,13 @@ async function pretty() {
         {
           url: "foo",
           indent: 2,
-          sourceText: source_text.value,
+          sourceText: text,
         }
       ]
     ]
   });
+
+  return result.promise;
 }
 async function select_stored() {
   try {
@@ -747,6 +757,21 @@ os.mkdir(dir)
 
 files = [
 `;
+
+  if (auto_prettify_js.checked) {
+    for (const [filename, file] of files) {
+      if (!filename.match(/\.(js|mjs)($|\?|#)/)) {
+        continue;
+      }
+
+      replicate_status.textContent = `Prettifying ${file.url}`;
+
+      const result = await prettifyText(file.content);
+      if (!result.error) {
+        file.content = result.response.code;
+      }
+    }
+  }
 
   for (const [filename, file] of files) {
     const encoder = new TextEncoder();

@@ -133,6 +133,10 @@ $ python3 ditm-replicate.py && cd ditm-replica && python3 -m http.server {PORT}<
           <input type="checkbox" id="source-replicate-server" checked>
           Run server automatically in <code>ditm-replicate.py</code>
         </label>
+        <label for="source-replicate-server">
+          <input type="checkbox" id="auto-prettify-js">
+          Prettify JS files
+        </label>
         <label for="source-replicate-port">
           Port number
           <input id="source-replicate-port" class="devtools-textinput" type="text" value="8000" size="6">
