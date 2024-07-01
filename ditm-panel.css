@@ -196,6 +196,7 @@ input[type="text"] {
     right: 0px;
     top: 18px;
     width: 140px;
+    position: absolute;
 }
 #source-url-menu-container .tooltip-arrow {
     left: calc(140px - (var(--arrow-width) + 2 * var(--shadow-margin)) - 4px);
