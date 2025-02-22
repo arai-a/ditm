@@ -30,7 +30,12 @@ const source_text = document.getElementById("source-text");
 source_text.placeholder = `1. Select URL from "Used" list
 2. Modify content
 3. Hit save \u2713 button
-4. Reload the webpage`;
+4. Reload the webpage
+
+NOTE: Overriding a single file can also be done with the browser's built-in feature "script override" and "network override".
+Consider migrating to them!
+
+https://firefox-source-docs.mozilla.org/devtools-user/network_monitor/network_overrides/index.html`;
 
 const source_url = document.getElementById("source-url");
 source_url.addEventListener("keypress", event => {
