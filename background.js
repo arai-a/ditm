@@ -96,6 +96,27 @@ function sendLog(type, url, redirect, size) {
   }
 }
 
+async function filterHeader(details) {
+  const url = details.url;
+
+  const file = findFile(url);
+  if (file) {
+    const responseHeaders = details.responseHeaders.filter(
+      item => item.name.toLowerCase() !== "cache-control");
+
+    responseHeaders.push({
+      name: "Cache-Control",
+      value: "no-cache",
+    });
+
+    return {
+      responseHeaders,
+    };
+  }
+
+  return undefined;
+}
+
 async function filterRequest(details) {
   const url = details.url;
 
@@ -160,6 +181,7 @@ function isValidURL(text) {
 let added = false;
 async function refresh() {
   if (added) {
+    await browser.webRequest.onHeadersReceived.removeListener(filterHeader);
     await browser.webRequest.onBeforeRequest.removeListener(filterRequest);
     added = false;
   }
@@ -188,6 +210,14 @@ async function refresh() {
     }
   });
 
+  await browser.webRequest.onHeadersReceived.addListener(
+    filterHeader,
+    {
+      urls: portlessUrls,
+    },
+    ["blocking", "responseHeaders"]
+  );
+
   await browser.webRequest.onBeforeRequest.addListener(
     filterRequest,
     {
@@ -195,6 +225,8 @@ async function refresh() {
     },
     ["blocking"]
   );
+
+  await browser.webRequest.handlerBehaviorChanged();
   added = true;
 }
 
